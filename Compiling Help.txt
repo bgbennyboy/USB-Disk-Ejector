@@ -1,0 +1,12 @@
+USB Disk Ejector
+
+Confirmed compiles in:
+Delphi 2010
+Older versions will require workarounds to compile but nothing major (eg you'll need PNG Imagelist http://www.thany.org/article/18/Delphi_components)
+
+Required components:
+HotKeyManager					http://subsimple.com/delphi.asp
+JVC (Jedi Code Library)				http://www.delphi-jedi.org/
+JVCL (Jedi Visual Code Library)			http://www.delphi-jedi.org/
+Jedi API and WSCL				http://blog.delphi-jedi.net/
+Virtual Treeview				http://www.delphi-gems.com/

@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>USB Disk Ejector</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<style type="text/css">
+	<!--
+	.style7 {font-family: Verdana, Arial, Helvetica, sans-serif}
+	.style10 {font-size: large}
+	.style12 {font-size: small}
+	-->
+	</style>
+</head>
+
+<body>
+	<span class="style7">
+		<span class="style10">USB Disk Ejector<br>
+			By Bgbennyboy<br>
+		Version 1.2<br>
+			<a href="http://quick.mixnmojo.com">Http://quick.mixnmojo.com</a>
+		</span><br>
+	</span><br>
+	<p class="style7"><strong><em>New in this version:</em></strong></p>
+	<p class="style7">There's been a huge number of changes since the last stable version. You can see the full list of changes at the end, the most important ones are listed below:<br>
+</p>
+<ul class="style7">
+	    <li>Support for Firewire drives/disks</li>
+		  <li>Support for card readers/flash memory cards (Cards are now ejected not the card reader as happened in previous versions)</li>
+		  <li>Auto-polling to detect when a new flash card is inserted (windows doesn't do this)</li>
+		  <li>Double right clicking on a drive opens an explorer window for the disk</li>
+		  <li>Much better notifications:
+		    <ul>
+                <li>Uses balloon hints in the taskbar for notifications instead of a messagebox</li>
+		      <li>Much better detection and explanation of the reasons for a failed eject</li>
+		      <li>Now notifies (via a balloon hint) when an eject is successful</li>
+	        </ul>
+      </li>
+		  <li>Automatically closes explorer windows related to the disk before ejecting (this stops a lot of the failed ejects in Vista)</li>
+		  <li>Can auto-close any applications running from the disk before ejection:
+		    <ul>
+                <li>Can do this using a safe 'ask' method or a brute force unsafe method</li>
+		      <li>Please note this closes applications that were <strong>launched </strong>from the ejecting disk. It currently <strong>does not</strong> close applications launched from elsewhere that have a file from the ejecting drive open.</li>
+		      <li>Eg - if you launch portable firefox from a usb stick and then eject  the stick it should close portable firefox and eject successfully, but  if you open a document on the pen drive in Word then it wouldnt be able  to detect and close this.</li>
+	        </ul>
+      </li>
+		  <li>Hotkey support (can assign a hotkey to eject a drive based on its name or drive letter)</li>
+		  <li>New 'no disks' found icon - the old face icon apparently scared some people</li>
+		  <li>Added tray icon:
+		    <ul>
+                <li>Added popup menu to tray icon so you can right click and eject  disks, similar to the behaviour of Windows' 'Safely remove hardware'  tray icon</li>
+	        </ul>
+      </li>
+		  <li>Smart auto-resizing of the program window to accommodate new disks/devices</li>
+		  <li>Better docking behaviour when the program window is in a corner of the screen</li>
+		  <li>Added '/NOSAVE', '/CLOSEAPPS' and '/CLOSEAPPSFORCE' command line switches</li>
+		  <li>Fixed - font size in the options dialog on Windows XP</li>
+		  <li>Fixed - very rarely a device with many disks/partitions might not  have all its disks detected correctly. The detection procedure is now  threaded to stop this rare occurance</li>
+		  <li>Fixed - if the program was set to read only - when it restarted in mobile mode and copied to the temp folder it couldnt delete itself</li>
+		  <li>Options dialog added - options can now be set and saved. Click on &lsquo;more&rsquo; then &lsquo;options&rsquo; to show it.</li>
+		  <li>Added options to:
+		    <ul>
+                <li>Start the program minimized</li>
+		      <li>Remember the last size of the program window</li>
+		      <li>Remember the last position of the program window</li>
+		      <li>Autosize the program window</li>
+		      <li>Enable/disable balloon notifications</li>
+		      <li>Close to the system tray</li>
+		      <li>Minimize to the system tray</li>
+		      <li>Enable/disable eject notifications</li>
+		      <li>Use the standard windows eject notifications</li>
+		      <li>Close the program after a successful ejection</li>
+		      <li>Minimize the program after a successful ejection</li>
+		      <li>Control the adding and management of hotkeys</li>
+		      <li>Control the closure of any programs running from a drive before ejection</li>
+		      <li>Search for media cards (in card readers)</li>
+	        </ul>
+      </li>
+	    <li><b>Remember this is a beta version, not everything will work fully and correctly.</b></li>
+	</ul>	
+	
+<br>
+<p class="style7"><strong><em>What is USB Disk Ejector?:</em></strong><br>
+		A program that allows you to quickly remove USB (and Firewire) drives in Windows. It was originally designed to remove only USB pen drives but will now eject any USB drive.
+		It can be run as a non-visual command line program or a normal gui program.<br><br>
+		
+		The command line options are very flexible, they can be used to:
+	</p>
+		<ul>
+			<li class="style7">Eject the drive that the program is running from.</li>
+			<li class="style7">Eject a drive by specifying a drive letter.</li>
+			<li class="style7">Eject a drive by specifying a drive name.</li>
+			<li class="style7">Eject a drive by specifying a partial drive name.</li>
+		</ul>
+	<p class="style7">
+		Its very useful if you have a USB flash/pen drive, especially if you use a menu such as PStart or the Portable Apps launcher.
+		With one click the menu will exit, the program will run silently and the drive will be ejected. See the 'Command Line Options' section below for more information.<br><br>
+
+		When run as a 'normal' GUI program the tools enables USB devices to be quickly ejected through a mouse click or keyboard press. 
+		It's especially useful when dealing with multiple USB devices and for Vista users who don't want the 'now safe to remove this device' dialog box to appear.<br><br>
+		
+	The program has been tested on WindowsXP, Windows Vista and Windows 2000. It should work on any version of Windows from 2000 onwards.</p>
+
+	<br>
+	<p class="style7"><em><strong>What do I need to use this?:</strong></em><br>
+		A removable USB device, such as a pen drive, digital camera or IPod.
+	</p>
+	
+	<br>
+	<p class="style7"><em><strong>Using the program (without any command line options):</strong></em></p>
+	<ol class="style7">
+		<li>Load the program, if you have any removable USB drives they will be shown in the list.</li>
+		<li>If you plug in any additional devices while the program is running then the list will automatically update to show them.</li>
+		<li>Double click on a device to remove it.<br>
+		</li>
+		<li>Unplug the device from your computer.</li>
+	</ol>
+	
+	<br>
+	<p class="style7"><em><strong>Command Line Options:</strong></em></p>
+	<p class="style7"><strong>These command line options will change in a future stable release</strong>. </p>
+	<p class="style7">The following command line options are available:</p>
+	<ul class="style7">
+	<li>/? <br>
+		Displays a dialog that shows all command line options.</li><br>
+	<li>/NOSAVE <br>
+		Stops the program from saving any setting to a file and ignores any existing settings file.</li><br>
+    <li>/SILENT <br>
+		Stops balloon messages from appearing when the program is run in GUI mode.</li><br>
+    <li>/SHOWEJECT <br>
+		Shows the standard ''It is now safe to now safe to remove'' message when a drive is ejected. This message is disabled by default.</li><br>
+    <li>/REMOVETHIS <br>
+		Ejects the drive that the program is running from. Eg if the program is run from a usb stick on drive G then drive G would be ejected.</li><br>
+    <li>/REMOVELETTER <br>
+		Ejects the specified drive letter. Eg /REMOVELETTER G</li><br>
+    <li>/REMOVENAME <br>
+		Ejects the drive with the specified name. Eg /REMOVEDRIVE "Sandisk U3 Titanium"<br> 
+		Partial name matching is possible if a wildcard (*) is used. Eg /REMOVENAME "*SANDISK" would eject a drive that had Sandisk in its name.</li><br>
+    <li>/CLOSEAPPS <br>
+		If there are any applications running from the drive, asks them to close. If any applications refuse to close then the eject will fail. This switch is considered relatively safe and should mean that no unsaved data is lost.</li><br>	
+    <li>/CLOSEAPPSFORCE <br>
+		If there are any applications running from the drive, force them to close. This will mean that any unsaved data in those programs will be lost. This has the same effect as ending a task/process.<br> 
+	</li>		
+    </ul>
+	
+<p class="style7">
+		The REMOVETHIS, REMOVELETTER and REMOVENAME parameters are command line only. Ie. when they are used the program will run silently, with no window appearing.
+		There will be no feedback from the program and a message will <i>only</i> be shown if there is an error and a device <i>cannot</i> be ejected.
+	</p>
+	
+	<p class="style7">
+		The command line options may be combined, eg:
+		<ul class="style7">		
+			<li>/SILENT /SHOWEJECT - would run the program in GUI mode, but no balloon messages would be shown and the eject message would be shown.</li>
+			<li>/SHOWEJECT /REMOVELETTER F - would eject drive F without any window appearing and the eject message would be shown.</li>
+		</ul>
+	</p>
+
+	<br>	
+	<p class="style7"><em><strong>Additional Features:</strong></em></p>
+	<p class="style7">Card reader/flash card support.	If you have a card reader the program will detect this and allow you to eject card media from this device.</p>
+	<p class="style7">Mobile Mode: If you try and eject the drive that the program is running from then the program will restart itself in mobile mode.<br>
+		It copies itself to the pc's temp folder, ejects the drive, then closes and deletes itself. It means that you can run the program from a usb pen drive and then eject that pen drive.<br>
+		<br>
+
+		IPod Eyecandy: If you have an IPod connected via USB, then it will have an IPod icon instead of the usual disk icon in the program.<br>
+		<br>
+			
+		Minimize to Tray: If you minimize the program, it will minimize to an icon in the system tray and wont show in the taskbar until restored.
+	</p>
+<br>
+	<p class="style7"><em><strong>Limitations:</strong></em><br>
+	<ul class="style7">
+	<li>There is <b>no</b> message when a disk is successfully ejected in mobile mode. This is by design since the intention is for the program to eject the disk, close and delete itself as quickly as possible. </li>
+<li>The following only applies if you use the SHOWEJECT command line switch to show the safely remove message:<br>
+		If you have balloon tips turned on in Windows XP then Windows shows a balloon tip when a device is removed ("device x can now be safely
+		removed from the system"). If you remove one device and then try to remove another, the second device will not be removed until you
+		close the balloon tip. If this irritates you, then you can try disabling balloon tips altogether. See <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;307729">this</a>
+		link for information on how to do this.</li>
+	</ul>
+	</p>
+
+	<br>
+	<p class="style7"><em><strong>Acknowledgements and Thanks:</strong></em><br>
+	
+		Ejection code is based upon C code by <a href="http://www.codeproject.com/system/RemoveDriveByLetter.asp">Uwe_Sieber</a>.<br><br>
+		
+		Program and drive icon is from the Snow.E2 set by <a href="http://www.rad-e8.com/contact/">Sascha H&ouml;hne.</a><br><br>
+		
+		Ipod icon unknown - please contact me if you are/know the author.<br><br>
+		
+		Uses the <a href="http://www.delphi-jedi.org/">Project JEDI</a> 'Setup and Config Manager API'.<br><br>
+
+		C to Pascal Converter by <a href="http://codecentral.borland.com/Item/23991">Ural Gunaydin</a> was used to translate some C code.		
+	</p>
+
+<br>
+	<p class="style7"><em><strong>Disclaimer:</strong></em><br>
+		The software is provided "as-is" and without warranty of any kind, express, implied or otherwise, including without limitation, any
+		warranty of merchantability or fitness for a particular purpose. In no event shall the initial developer or any other contributor be
+		liable for any special, incidental, indirect or consequential damages of any kind, or any damages whatsoever resulting from loss
+		of use, data or profits, whether or not advised of the possibility of damage, and on any theory of liability, arising out of or in
+		connection with the use or performance of this software.
+	</p>
+	
+<br>	
+	<p class="style7"><em><strong>Support:</strong></em><br>
+		<a href="http://quick.mixnmojo.com/contact">Contact me</a>
+	</p>
+	
+	<p class="style7 style12">bgbennyboy 15/04/09</p>
+</body>
+</html>
