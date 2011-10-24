@@ -62,7 +62,7 @@ type
     function GetParentDriveDevInst(MountPoint: string; var ParentInstNum: integer): boolean;
     function GetNoDevicesWithSameParentInst(ParentDevInst: integer): integer;
     function GetNoDevicesWithSameProductId(ProductId: string): integer;
-    //function CheckIfDriveHasMedia(MountPoint: string): boolean;
+    function CheckIfDriveHasMedia(MountPoint: string): boolean;
     function GetCardPolling: boolean;
     procedure SetCardPolling(Value: boolean);
     procedure FindRemovableDrives;
@@ -81,7 +81,7 @@ type
     procedure ClearDriveList;
 
     property DrivesCount: integer read GetDrivesCount;
-    //property OnCardMediaChanged: TNotifyEvent read FOnCardMediaChanged write FOnCardMediaChanged;
+    property OnCardMediaChanged: TNotifyEvent read FOnCardMediaChanged write FOnCardMediaChanged;
     property CardPollingInterval: cardinal read FPollTimerInterval write FPollTimerInterval;
     property CardPolling: boolean read GetCardPolling write SetCardPolling;
     property Busy: boolean read GetBusy write SetBusy;
@@ -292,7 +292,6 @@ procedure TDriveEjector.FindRemovableDrives;
 var
   FindRec: cardinal;
   VolumeUniqueName: array[0..MAX_PATH] of Char;
-  i: integer;
 begin
   SetBusy(true);
   SetLength(RemovableDrives, 0);
@@ -315,11 +314,11 @@ begin
 
   {--------------------------------------------------------------------------------------}
   //HACK - delete card readers
-  for i := DrivesCount - 1 downto 0 do
+  {for i := DrivesCount - 1 downto 0 do
   begin
     if RemovableDrives[i].IsCardReader then
       DeleteFromDrivesArray(i);
-  end;
+  end;}
   {--------------------------------------------------------------------------------------}
 
 
@@ -437,30 +436,30 @@ begin
     if DeviceDescriptor.VendorIdOffset <> 0 then
     begin
       PCh := @PCharArray(@DeviceDescriptor)^[DeviceDescriptor.VendorIdOffset];
-      RemovableDrives[high(RemovableDrives)].VendorId := Trim(Pch);
+      RemovableDrives[high(RemovableDrives)].VendorId := Trim(String(Pch));
     end;
 
     //Product Id
     if DeviceDescriptor.ProductIdOffset <> 0 then
     begin
       PCh := @PCharArray(@DeviceDescriptor)^[DeviceDescriptor.ProductIdOffset];
-      RemovableDrives[high(RemovableDrives)].ProductID := Trim(PCh);
+      RemovableDrives[high(RemovableDrives)].ProductID := Trim(String(PCh));
     end;
 
     //Product Revision
     if DeviceDescriptor.ProductRevisionOffset <> 0 then
     begin
       PCh := @PCharArray(@DeviceDescriptor)^[DeviceDescriptor.ProductRevisionOffset];
-      RemovableDrives[high(RemovableDrives)].ProductRevision := Trim(PCh);
+      RemovableDrives[high(RemovableDrives)].ProductRevision := Trim(String(PCh));
     end;
 
     //Is Card Reader   //This is checked and changed later
     RemovableDrives[high(RemovableDrives)].IsCardReader := false;
 
     //Does Card Reader have media in it?
-    {if CheckIfDriveHasMedia(DriveMountPoint) then
+    if CheckIfDriveHasMedia(DriveMountPoint) then
       RemovableDrives[high(RemovableDrives)].CardMediaPresent:=true
-    else}
+    else
       RemovableDrives[high(RemovableDrives)].CardMediaPresent:=false;
 
     //Bus Type
@@ -592,29 +591,40 @@ begin
   end;
 end;
 
-{function TDriveEjector.CheckIfDriveHasMedia(MountPoint: string): boolean;
+function TDriveEjector.CheckIfDriveHasMedia(MountPoint: string): boolean;
 var
   Returned, DriveHandle: cardinal;
+  VolumeName: array[0..MAX_PATH-1] of Char;
 begin
   result:=false;
-                                                               //GENERIC_READ or GENERIC_WRITE
-  DriveHandle := CreateFile(PChar('\\.\' + MountPoint + ':'), FILE_SHARE_READ or FILE_SHARE_WRITE, 0, nil, OPEN_EXISTING, 0, 0);
+
+  GetVolumeNameForVolumeMountPoint(pchar(MountPoint), VolumeName, MAX_PATH);
+
+                            //GENERIC_READ or GENERIC_WRITE
+  DriveHandle := CreateFile(PChar(ExcludeTrailingPathDelimiter( VolumeName )),
+                          FILE_READ_ATTRIBUTES,
+                          FILE_SHARE_READ or FILE_SHARE_WRITE, nil, OPEN_EXISTING, 0, 0);
   try
-    if DeviceIoControl(DriveHandle, IOCTL_STORAGE_CHECK_VERIFY, nil, 0, nil, 0, @Returned, nil) then
+    if DeviceIoControl(DriveHandle, IOCTL_STORAGE_CHECK_VERIFY2, nil, 0, nil, 0, @Returned, nil) then
       result:=true; //Card is in reader
 
   finally
     CloseHandle(Drivehandle);
   end;
-end;}
+end;
 
 function TDriveEjector.EjectCard(MountPoint: string; var EjectErrorCode: integer): boolean;
 var
   Returned, DriveHandle: cardinal;
+  VolumeName: array[0..MAX_PATH-1] of Char;
 begin
   result:=false;
-                                                                {GENERIC_READ or GENERIC_WRITE}
-  DriveHandle := CreateFile(PChar('\\.\' + MountPoint + ':'), FILE_SHARE_READ or FILE_SHARE_WRITE, 0, nil, OPEN_EXISTING, 0, 0);
+
+  GetVolumeNameForVolumeMountPoint(pchar(MountPoint), VolumeName, MAX_PATH);
+
+  DriveHandle := CreateFile(PChar(ExcludeTrailingPathDelimiter( VolumeName )),
+                          GENERIC_READ or GENERIC_WRITE,
+                          FILE_SHARE_READ or FILE_SHARE_WRITE,  nil, OPEN_EXISTING, 0, 0);
   try
     if DriveHandle = INVALID_HANDLE_VALUE then
     begin
@@ -626,7 +636,7 @@ begin
       exit;
     end;
 
-    if DeviceIoControl(DriveHandle, IOCTL_STORAGE_CHECK_VERIFY, nil, 0, nil, 0, @Returned, nil) = false then
+    if DeviceIoControl(DriveHandle, IOCTL_STORAGE_CHECK_VERIFY2, nil, 0, nil, 0, @Returned, nil) = false then
     begin
       EjectErrorCode:=REMOVE_ERROR_NO_CARD_MEDIA;
       exit; //No card in reader
@@ -752,10 +762,10 @@ begin
 
    if result=false then
    begin
-    //if GetLastError = 32 then
+    if GetLastError = 32 then
       EjectErrorCode:=REMOVE_ERROR_DISK_IN_USE
-    //else
-   //   EjectErrorCode:=REMOVE_ERROR_UNKNOWN_ERROR;
+    else
+      EjectErrorCode:=REMOVE_ERROR_UNKNOWN_ERROR;
    end;
 end;
 
@@ -973,28 +983,30 @@ begin
   //sysutils.Beep;
   if GetDrivesCount = 0 then exit;
 
-  {for I := 0 to GetDrivesCount - 1 do
+  for I := 0 to GetDrivesCount - 1 do
   begin
     if RemovableDrives[i].IsCardReader then
     begin
       if CheckIfDriveHasMedia(RemovableDrives[i].DriveMountPoint) then
       begin
         if RemovableDrives[i].CardMediaPresent=false then //Has changed - generate event
+        begin
+          RemovableDrives[i].CardMediaPresent:=true;
           if assigned(foncardmediachanged) then
             foncardmediachanged(nil);
-
-        RemovableDrives[i].CardMediaPresent:=true
+        end;
       end
       else
       begin
         if RemovableDrives[i].CardMediaPresent=true then  //Has changed - generate event
+        begin
+          RemovableDrives[i].CardMediaPresent:=false;
           if assigned(foncardmediachanged) then
             foncardmediachanged(nil);
-
-        RemovableDrives[i].CardMediaPresent:=false
+        end;
       end;
     end;
-  end;}
+  end;
 
 end;
 

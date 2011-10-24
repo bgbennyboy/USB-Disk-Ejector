@@ -55,7 +55,7 @@ begin
   Application.Initialize;
 
   //TODO!!!!!!!!!!!!!!!!!!  Fix this with proper switches ************************
-  CardEject:= false;
+  CardEject:= true;
   //******************************************************************************
 
   // ? Param

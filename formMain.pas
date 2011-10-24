@@ -106,6 +106,9 @@ Optional/Possibilities/Non-critical:
         If restarts in mobile mode and eject fails - load main app back up again somehow?
         Customise what is displayed for each drive?
         Localisation
+
+        Card readers - specify which ones are readers in options - match by various fields
+        Option to hide card readers with no media in
 }
 
 unit formMain;
@@ -121,7 +124,7 @@ uses
 
   {uVistaFuncs,}
   uDiskEjectConst, uDiskEjectUtils, uDiskEjectOptions,
-  uCustomHotKeyManager, uDriveEjector, uCommunicationManager;
+  uCustomHotKeyManager, uDriveEjector, uCommunicationManager, JvMenus;
 
 type
   TMainfrm = class(TForm)
@@ -239,7 +242,7 @@ begin
   HotKeys:=TCustomHotKeyManager.Create;
   HotKeys.OnHotKeyPressed:=HotKeyPressed;
 
-  //Ejector.OnCardMediaChanged:=OnCardMediaChanged;
+  Ejector.OnCardMediaChanged:=OnCardMediaChanged;
   Ejector.OnDrivesChanged:=OnDrivesChanged;
   Ejector.CardPolling:=Options.CardPolling;
 
@@ -396,11 +399,25 @@ begin
 end;
 
 procedure TMainfrm.OnCardMediaChanged(Sender: TObject);
+var
+  i: integer;
 begin
   //beep;
 
   //CHECK if this causes problems when form is minimized
   tree.FullExpand;
+
+  //Change icons if necessary
+  for i:=low(DrivePopups) to high(DrivePopups) do
+  begin
+    if Ejector.RemovableDrives[i].IsCardReader then
+    begin
+      if Ejector.RemovableDrives[i].CardMediaPresent then
+        popupEjectMenu.Items[i].ImageIndex:=6
+      else
+        popupEjectMenu.Items[i].ImageIndex:=5
+    end;
+  end;
 end;
 
 procedure TMainfrm.popupAboutClick(Sender: TObject);
@@ -707,9 +724,11 @@ var
   i: integer;
 begin
   if DrivePopups <> nil then
-    for i:=low(DrivePopups) to high(DrivePopups) do
-      DrivePopups[i].Free;
-      
+  for i:=low(DrivePopups) to high(DrivePopups) do
+  begin
+    DrivePopups[i].Free;
+  end;
+
   if Ejector.DrivesCount = 0 then
   begin
     DrivePopups:=nil;
@@ -721,7 +740,7 @@ begin
   begin
     DrivePopups[i]:=TMenuItem.Create(Self);
     DrivePopups[i].Caption:=Ejector.RemovableDrives[i].DriveMountPoint + ':   ' +
-      Ejector.RemovableDrives[i].VendorId + ' ' + 
+      Ejector.RemovableDrives[i].VendorId + ' ' +
       Ejector.RemovableDrives[i].ProductID;
 
     if Ejector.RemovableDrives[i].VolumeLabel > '' then
@@ -729,10 +748,28 @@ begin
       Ejector.RemovableDrives[i].VolumeLabel + ')';
 
 
-    DrivePopups[i].Tag:=i; //Store drive index for eject later   
+    DrivePopups[i].Tag:=i; //Store drive index for eject later
+
+    begin  //Image index
+      if pos('IPOD', Uppercase(Ejector.RemovableDrives[i].ProductID )) > 0  then
+        DrivePopups[i].ImageIndex:=4
+      else
+      if Ejector.RemovableDrives[i].BusType = 4 then //firewire
+        DrivePopups[i].ImageIndex:=7
+      else
+      if Ejector.RemovableDrives[i].IsCardReader then
+      begin
+        if Ejector.RemovableDrives[i].CardMediaPresent then
+          DrivePopups[i].ImageIndex:=6
+        else
+          DrivePopups[i].ImageIndex:=5
+      end
+      else
+        DrivePopups[i].ImageIndex:=3;
+    end;
+
     popupMenuTray.Items[2].add(DrivePopups[i]); //Add to the eject submenu
     DrivePopups[i].OnClick:=DrivePopupMenuHandler;
-    DrivePopups[i].ImageIndex:=2;
   end;
 end;
 
@@ -742,24 +779,28 @@ procedure TMainfrm.TreeGetImageIndex(Sender: TBaseVirtualTree;
 begin
   if Ejector.Busy then exit;
 
-
-  if Ejector.DrivesCount = 0 then
-    ImageIndex:=1
-  else
-  if pos('IPOD', Uppercase(Ejector.RemovableDrives[node.index].ProductID )) > 0  then
-    ImageIndex:=2
-  else
-  if Ejector.RemovableDrives[node.index].BusType = 4 then //firewire
-    ImageIndex:=5
-  else
-  if Ejector.RemovableDrives[node.index].IsCardReader then
-    if Ejector.RemovableDrives[node.index].CardMediaPresent then
-      ImageIndex:=4
+  if Kind <> ikOverlay then //fix for vt bug
+  begin
+    if Ejector.DrivesCount = 0 then
+      ImageIndex:=1
     else
-      ImageIndex:=3
+    if pos('IPOD', Uppercase(Ejector.RemovableDrives[node.index].ProductID )) > 0  then
+      ImageIndex:=2
+    else
+    if Ejector.RemovableDrives[node.index].BusType = 4 then //firewire
+      ImageIndex:=5
+    else
+    if Ejector.RemovableDrives[node.index].IsCardReader then
+    begin
+      if Ejector.RemovableDrives[node.index].CardMediaPresent then
+        ImageIndex:=4
+      else
+        ImageIndex:=3
+    end
 
-  else
-    ImageIndex:=0;
+    else
+      ImageIndex:=0;
+  end;
 end;
 
 procedure TMainfrm.TreeGetNodeDataSize(Sender: TBaseVirtualTree;

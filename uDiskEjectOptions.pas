@@ -173,7 +173,7 @@ begin
     fCloseToTray:=             fIniFile.ReadBool('Preferences', 'CloseToTray', false);
     fMinimizeToTray:=          fIniFile.ReadBool('Preferences', 'MinimizeToTray', true);
     fBalloonMessages:=         fIniFile.ReadBool('Preferences', 'BalloonMessages', true);
-    fCardPolling:=             fIniFile.ReadBool('Preferences', 'CardPolling', false);
+    fCardPolling:=             fIniFile.ReadBool('Preferences', 'CardPolling', true);
     fCloseRunningApps_Ask:=    fIniFile.ReadBool('Preferences', 'CloseRunningApps', false);
     fCloseRunningApps_Force:=  fIniFile.ReadBool('Preferences', 'ForceAppsClose', false);
     fAudioNotifications:=      fIniFile.ReadBool('Preferences', 'AudioNotifications', false);
