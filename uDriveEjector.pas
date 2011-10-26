@@ -79,6 +79,7 @@ type
     function RemoveDrive(MountPoint: string; var EjectErrorCode: integer; ShowEjectMessage: boolean = false; CardEject: boolean = false; CloseRunningApps: boolean = false; ForceRunningAppsClosure: boolean = false): boolean; overload;
     procedure RescanAllDrives;
     procedure ClearDriveList;
+    procedure SetDriveAsCardReader(Index: Integer; CardReader: boolean);
 
     property DrivesCount: integer read GetDrivesCount;
     property OnCardMediaChanged: TNotifyEvent read FOnCardMediaChanged write FOnCardMediaChanged;
@@ -103,6 +104,7 @@ implementation
 var
   fPrevWndProc: TFNWndProc = nil;
   fChangeMessageCount: integer = 0;
+  CriticalSection: TCriticalSection;
   EventsThread: TEventsThread;
   GetVolumePathNamesForVolumeNameW: Function(VolumeName, VolumePathNames: PWideChar;
       BufferLength: LongWord; ReturnLength: PLongWord): LongBool; StdCall;
@@ -195,7 +197,9 @@ begin
       (PDevBroadcastHeader(lParam).dbcd_devicetype = DBT_DEVTYP_VOLUME)) or
       (wParam = DBT_DEVICEREMOVECOMPLETE)) then
     begin
+      EnterCriticalSection(CriticalSection);
       inc(fChangeMessageCount);
+      LeaveCriticalSection(CriticalSection);
       if EventsThread.Suspended then EventsThread.Resume;
     end;
 end;
@@ -218,7 +222,9 @@ begin
     if (fChangeMessageCount > 0) and (fEjector.Busy = false) then
     begin
       sleep(500);  //gives extra time for devices with multi volumes/partitions - sometimes theres only 1 message but it takes a moment for windows to mount both partitions
+      EnterCriticalSection(CriticalSection);
       fChangeMessageCount:=0; //set it back to 0 because we're about to scan
+      LeaveCriticalSection(CriticalSection);
       fEjector.RescanAllDrives;
       //messagebeep(0);
     end
@@ -247,6 +253,8 @@ begin
     SetWindowLong(Application.Handle, GWL_WNDPROC, LongInt(@UsbWndProc));
   end;
 
+  InitializeCriticalSection(CriticalSection);
+
   fBusy := false;
   //Create a thread to keep polling fChangeMessageCount
   EventsThread:=TEventsThread.Create(self);
@@ -260,6 +268,8 @@ begin
   EventsThread.Terminate;
   if EventsThread.Suspended then EventsThread.Resume;
   EventsThread.Free;
+
+  DeleteCriticalSection(CriticalSection);
 
   PollTimer.free;
   SetLength(RemovableDrives, 0);
@@ -493,6 +503,11 @@ procedure TDriveEjector.SetCardPolling(Value: boolean);
 begin
   fPolling:=Value;
   PollTimer.Enabled:=fPolling;
+end;
+
+procedure TDriveEjector.SetDriveAsCardReader(Index: Integer; CardReader: boolean);
+begin
+  RemovableDrives[Index].IsCardReader := CardReader;
 end;
 
 function TDriveEjector.GetDrivesCount: integer;
@@ -982,6 +997,8 @@ var
 begin
   //sysutils.Beep;
   if GetDrivesCount = 0 then exit;
+  if fPolling = false then exit;
+
 
   for I := 0 to GetDrivesCount - 1 do
   begin

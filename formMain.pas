@@ -74,7 +74,8 @@ Added since last stable release:
   Added eject by right click menu in tray
   Hotkeys - eject by drive name (with wildcard support), drive letter, bring to front
   Threads - stop very rare issue where device with many partitions or card reader device supporting multiple devices - not all drives were detected
-
+  Card readers - specify which ones are readers in options - match by various fields
+  Option to hide card readers with no media in
 
 TODO Before Release:
   Update credits in readme and about form
@@ -106,9 +107,6 @@ Optional/Possibilities/Non-critical:
         If restarts in mobile mode and eject fails - load main app back up again somehow?
         Customise what is displayed for each drive?
         Localisation
-
-        Card readers - specify which ones are readers in options - match by various fields
-        Option to hide card readers with no media in
 }
 
 unit formMain;
@@ -124,7 +122,7 @@ uses
 
   {uVistaFuncs,}
   uDiskEjectConst, uDiskEjectUtils, uDiskEjectOptions,
-  uCustomHotKeyManager, uDriveEjector, uCommunicationManager, JvMenus;
+  uCustomHotKeyManager, uCardReaderManager, uDriveEjector, uCommunicationManager, JvMenus;
 
 type
   TMainfrm = class(TForm)
@@ -166,6 +164,7 @@ type
     procedure TreeMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure JvAppInstances1Rejected(Sender: TObject);
+    procedure AddCustomCardReaders;
   private
     DrivePopups: array of TMenuItem;
     Procedure MinimizeClick(Sender:TObject);
@@ -178,6 +177,7 @@ type
     procedure OnDrivesChanged (Sender: TObject);
     procedure DrivePopupMenuHandler(Sender: TObject);
     procedure AddDrivePopups;
+    procedure ChangeDriveVisibility;
     procedure UpdateFormStrings;
     procedure GUIRemoveDrive(MountPoint: String; RemoveCard: boolean);
   public
@@ -188,6 +188,7 @@ var
   Ejector: TDriveEjector;
   Communicator: TCommunicationManager;
   HotKeys: TCustomHotKeyManager;
+  CardReaders: TCardReaderManager;
   ForceClose: boolean = false; //Used by CloseProgram() to prevent the CloseToTray option stopping the app closing
 
 implementation
@@ -242,6 +243,8 @@ begin
   HotKeys:=TCustomHotKeyManager.Create;
   HotKeys.OnHotKeyPressed:=HotKeyPressed;
 
+  CardReaders := TCardReaderManager.Create;
+
   Ejector.OnCardMediaChanged:=OnCardMediaChanged;
   Ejector.OnDrivesChanged:=OnDrivesChanged;
   Ejector.CardPolling:=Options.CardPolling;
@@ -263,6 +266,7 @@ begin
   end;
   
   HotKeys.Free;
+  CardReaders.Free;
   Ejector.Free;
   Communicator.Free;
 end;
@@ -404,6 +408,8 @@ var
 begin
   //beep;
 
+  ChangeDriveVisibility;
+
   //CHECK if this causes problems when form is minimized
   tree.FullExpand;
 
@@ -460,6 +466,20 @@ begin
   Optionsfrm.showmodal;
   ResizeTree;
   Communicator.RefreshOptions;
+
+  AddCustomCardReaders;
+
+  if Options.HideCardReadersWithNoMedia then
+  begin //Might need to hide some drives
+    if Tree.RootNodeCount = Tree.VisibleCount then
+        FillDriveList;
+  end
+  else
+  begin //Some drives hidden when they shouldnt be
+    if Tree.RootNodeCount <> Tree.VisibleCount then
+      FillDriveList;
+  end;
+
 end;
 
 procedure TMainfrm.GUIRemoveDrive(MountPoint: String; RemoveCard: boolean);
@@ -502,6 +522,7 @@ begin
 
   if RemoveCard then //No WMDeviceChange fired for cards
   begin
+    ChangeDriveVisibility;
     ResizeTree;
     tree.Enabled:=true;
   end;
@@ -517,7 +538,7 @@ var
   statictext: string;
 const
   VertFormPadding: integer = 100;
-  HorizFormPadding: integer = 140; //This could be wrong
+  HorizFormPadding: integer = 140; //This could be wrong  140
 begin
   if Tree.RootNodeCount = 0 then exit;
   if Options.AutoResize = false then exit;
@@ -525,12 +546,14 @@ begin
 
   Tree.BeginUpdate;
 
-  NodesHeight:=Tree.NodeHeight[tree.GetFirst] * Tree.RootNodeCount; //All nodes same height
+  NodesHeight:=Tree.NodeHeight[tree.GetFirst] * Tree.VisibleCount; {RootNodeCount;} //All nodes same height
 
   NodeWidth:=0;
   TempNode:=tree.GetFirst;
   for I := 0 to Tree.RootNodeCount - 1 do
   begin
+    if Tree.IsVisible[TempNode] = false then continue; //ignore hidden drives
+
     if Ejector.DrivesCount > 0 then
       statictext:=Ejector.RemovableDrives[TempNode.Index].VolumeLabel
     else
@@ -711,12 +734,68 @@ begin
     Tree.Selected[Tree.GetFirst]:=true;
   end;
 
+  AddCustomCardReaders;
+  ChangeDriveVisibility;
   AddDrivePopups;
   Tree.EndUpdate;
 
   //if tree is resized when form is minimised then form partially restores itself
   if WindowState <> wsMinimized then
     ResizeTree;
+end;
+
+procedure TMainfrm.ChangeDriveVisibility;
+var
+  i: integer;
+  TempNode, PrevNode: pVirtualNode;
+begin
+  if Ejector.DrivesCount = 0 then //Make that first node visible again
+  begin
+    Tree.IsVisible[Tree.GetFirst] := true;
+    exit;
+  end;
+
+  //Hide/show drives
+  TempNode:=tree.GetFirst;
+  for I := 0 to Tree.RootNodeCount - 1 do
+  begin
+    if Options.HideCardReadersWithNoMedia then
+    begin
+      if Ejector.RemovableDrives[i].IsCardReader then
+        if Ejector.RemovableDrives[i].CardMediaPresent = false then
+          Tree.IsVisible[TempNode] := false
+        else
+          Tree.IsVisible[TempNode] := true;
+    end
+    else
+      Tree.IsVisible[TempNode] := true;
+
+    prevNode:=TempNode;
+    TempNode:=Tree.GetNext(PrevNode);
+  end;
+end;
+
+procedure TMainfrm.AddCustomCardReaders;
+var
+  i, j: integer;
+begin
+  if CardReaders = nil then exit;
+  if CardReaders.CardReadersCount = 0 then exit;
+
+  for I := 0 to CardReaders.CardReadersCount - 1 do
+  begin
+    for J := 0 to Ejector.DrivesCount - 1 do
+    begin
+      if (Trim(Ejector.RemovableDrives[J].VendorId) = CardReaders.CardReaders[i].VendorID) and
+         (Trim(Ejector.RemovableDrives[J].ProductID) = CardReaders.CardReaders[i].ProductID) and
+         (Trim(Ejector.RemovableDrives[J].ProductRevision) = CardReaders.CardReaders[i].ProductRevision) then
+         begin
+          Ejector.SetDriveAsCardReader(J, true);
+          break;
+         end;
+    end;
+  end;
+
 end;
 
 procedure TMainfrm.AddDrivePopups;
@@ -770,6 +849,17 @@ begin
 
     popupMenuTray.Items[2].add(DrivePopups[i]); //Add to the eject submenu
     DrivePopups[i].OnClick:=DrivePopupMenuHandler;
+
+
+    //Show/hide popups
+    if Options.HideCardReadersWithNoMedia then
+    begin
+      if Ejector.RemovableDrives[i].IsCardReader then
+        if Ejector.RemovableDrives[i].CardMediaPresent = false then
+          DrivePopups[i].Visible :=false;
+    end
+    else
+      DrivePopups[i].Visible := true;
   end;
 end;
 
@@ -813,7 +903,6 @@ procedure TMainfrm.TreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
   Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
 begin
   if Ejector.Busy then exit;
-
 
   if Ejector.DrivesCount = 0 then
   case texttype of

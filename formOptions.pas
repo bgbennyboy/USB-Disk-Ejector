@@ -42,7 +42,6 @@ type
     ScrollBox1: TScrollBox;
     GroupBox2: TGroupBox;
     CheckBox4: TCheckBox;
-    chkboxCardPolling: TCheckBox;
     TabSheet2: TTabSheet;
     ScrollBox2: TScrollBox;
     GroupBox4: TGroupBox;
@@ -78,6 +77,15 @@ type
     chkboxMinimizeToTray: TCheckBox;
     chkboxShowBalloonMessages: TCheckBox;
     CheckBoxAudioNotifications: TCheckBox;
+    TabSheet5: TTabSheet;
+    GroupBox7: TGroupBox;
+    chkBoxHideCardReaders: TCheckBox;
+    chkboxCardPolling: TCheckBox;
+    GroupBox8: TGroupBox;
+    comboboxCardReaderChoose: TComboBox;
+    btnAddCardReader: TBitBtn;
+    btnRemoveCardReader: TBitBtn;
+    listviewCardReaders: TListView;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -95,13 +103,20 @@ type
       const Category: TButtonCategory);
     procedure CategoryButtons1ButtonClicked(Sender: TObject;
       const Button: TButtonItem);
+    procedure btnRemoveCardReaderClick(Sender: TObject);
+    procedure listviewCardReadersChange(Sender: TObject; Item: TListItem;
+      Change: TItemChange);
+    procedure btnAddCardReaderClick(Sender: TObject);
   private
     procedure PopulateDriveLetters;
     procedure PopulateDriveNames;
     procedure PopulateDriveLabels;
     procedure PopulateMountPoints;
+    procedure PopulateCardReaderChooseBox;
     procedure UpdateListViewHotKeys;
+    procedure UpdateListViewCardReaders;
     procedure AddListviewItem(fListView: TListView; fCaption : string; fSubItems : Array of string);
+    procedure RemoveCustomCardReaders(VendorID, ProductID, ProductRevision: string);
   public
     { Public declarations }
   end;
@@ -114,6 +129,25 @@ implementation
 uses formAbout, formMain;
 
 {$R *.dfm}
+
+procedure TOptionsfrm.RemoveCustomCardReaders(VendorID, ProductID, ProductRevision: string);
+var
+  i: integer;
+begin
+  if CardReaders = nil then exit;
+  //if CardReaders.CardReadersCount = 0 then exit;
+
+  for I := 0 to Ejector.DrivesCount - 1 do
+  begin
+    if (Trim(Ejector.RemovableDrives[i].VendorId) = VendorID) and
+       (Trim(Ejector.RemovableDrives[i].ProductID) = ProductID) and
+       (Trim(Ejector.RemovableDrives[i].ProductRevision) = ProductRevision) then
+       begin
+        Ejector.SetDriveAsCardReader(i, false);
+        break;
+       end;
+  end;
+end;
 
 procedure TOptionsfrm.FormCreate(Sender: TObject);
 var
@@ -130,6 +164,9 @@ begin
   Options.HotKeys:=HotKeys;
   Options.RebuildHotKeys;
 
+  Options.CardReaders := CardReaders;
+  Options.RebuildCardReaders;
+  Mainfrm.AddCustomCardReaders; //Have to do this here - cant do it in Main form as it runs from FillDriveList which is called by Create() - which runs before options or anything else is created
 end;
 
 procedure TOptionsfrm.FormShow(Sender: TObject);
@@ -150,6 +187,7 @@ begin
     chkboxCardPolling.Checked           := CardPolling;
     radiogroupAfterEject.ItemIndex      := AfterEject;
     comboboxDockTo.ItemIndex            := SnapTo;
+    chkBoxHideCardReaders.Checked       := HideCardReadersWithNoMedia;
 
     if (CloseRunningApps_Ask = true) and (CloseRunningApps_Force = false) then
       radioGroupCloseApps.ItemIndex:=1
@@ -167,17 +205,38 @@ begin
     lblNoSaveMode.Visible:=false;
 
   listViewHotkeys.Clear;
-  if HotKeys.HotKeys.Count = 0 then exit;
-  for I := 0 to HotKeys.HotKeys.Count - 1 do
+  if HotKeys.HotKeys.Count > 0 then
   begin
-      case TCustomHotKey(HotKeys.HotKeys[i]).HotKeyType of
-        RestoreApp:           AddListviewItem(listViewHotkeys, str_Hotkey_Restore_Window, ['',HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
-        EjectByDriveLabel:    AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Label, [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
-        EjectByDriveLetter:   AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Letter, [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
-        EjectByMountPoint:    AddListviewItem(listViewHotkeys, str_Hotkey_Eject_MountPoint, [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
-        EjectByDriveName:     AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Name,   [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
-      end;
-  end;    
+    for I := 0 to HotKeys.HotKeys.Count - 1 do
+    begin
+        case TCustomHotKey(HotKeys.HotKeys[i]).HotKeyType of
+          RestoreApp:           AddListviewItem(listViewHotkeys, str_Hotkey_Restore_Window, ['',HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
+          EjectByDriveLabel:    AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Label, [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
+          EjectByDriveLetter:   AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Letter, [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
+          EjectByMountPoint:    AddListviewItem(listViewHotkeys, str_Hotkey_Eject_MountPoint, [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
+          EjectByDriveName:     AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Name,   [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
+        end;
+    end;
+  end;
+
+
+  listViewCardReaders.Clear;
+  if CardReaders.CardReadersCount > 0 then
+  begin
+    for I := 0 to CardReaders.CardReadersCount - 1 do
+    begin
+      AddListviewItem(listViewCardReaders,  CardReaders.CardReaders[i].VendorID,  [ CardReaders.CardReaders[i].ProductID, CardReaders.CardReaders[i].ProductRevision ]);
+    end;
+  end;
+
+
+  PopulateCardReaderChooseBox;
+end;
+
+procedure TOptionsfrm.listviewCardReadersChange(Sender: TObject;
+  Item: TListItem; Change: TItemChange);
+begin
+  UpdateListViewCardReaders;
 end;
 
 procedure TOptionsfrm.listViewHotkeysChange(Sender: TObject; Item: TListItem;
@@ -195,6 +254,25 @@ begin
       #13 + str_Hotkey +
       listViewHotkeys.Items[listViewHotKeys.ItemIndex].SubItems.Strings[1]
     );
+end;
+
+procedure TOptionsfrm.PopulateCardReaderChooseBox;
+var
+  i: integer;
+begin
+  comboboxCardReaderChoose.Clear;
+  comboboxCardReaderChoose.ItemIndex := -1;
+
+  if Ejector.DrivesCount = 0 then exit;
+
+  for I := 0 to Ejector.DrivesCount - 1 do
+  begin
+    if Ejector.RemovableDrives[i].DriveMountPoint <> '' then
+      comboboxCardReaderChoose.Items.Add(Trim(Ejector.RemovableDrives[i].VendorId) + ' ' +
+                                         Trim(Ejector.RemovableDrives[i].ProductID + ' ' +
+                                         Trim(Ejector.RemovableDrives[i].ProductRevision)));
+  end;
+
 end;
 
 procedure TOptionsfrm.PopulateDriveLabels;
@@ -269,6 +347,14 @@ begin
   end;
 end;
 
+procedure TOptionsfrm.UpdateListViewCardReaders;
+begin
+  if listViewCardReaders.Items.Count > 0 then
+    btnRemoveCardReader.Visible := true
+  else
+    btnRemoveCardReader.Visible := false;
+end;
+
 procedure TOptionsfrm.UpdateListViewHotKeys;
 begin
   if listViewHotkeys.Items.Count > 0 then
@@ -286,6 +372,23 @@ begin
   ListItem.Caption := fCaption;
   for i := 0 to High(fSubItems) do
     ListItem.SubItems.Add(fSubItems[i]);
+end;
+
+procedure TOptionsfrm.btnAddCardReaderClick(Sender: TObject);
+begin
+  if comboboxCardReaderChoose.ItemIndex < 0 then
+  begin
+    ShowMessage(str_Hotkey_NoParam);
+    exit;
+  end;
+
+  if CardReaders.AddCardReader(Trim(Ejector.RemovableDrives[comboboxCardReaderChoose.ItemIndex].VendorId), Trim(Ejector.RemovableDrives[comboboxCardReaderChoose.ItemIndex].ProductID), Trim(Ejector.RemovableDrives[comboboxCardReaderChoose.ItemIndex].ProductRevision)) = false then
+  begin
+    ShowMessage('Couldnt add card reader. Maybe its already in the list?');
+    exit;
+  end;
+
+  AddListviewItem(listViewCardReaders,  Trim(Ejector.RemovableDrives[comboboxCardReaderChoose.ItemIndex].VendorId),  [ Trim(Ejector.RemovableDrives[comboboxCardReaderChoose.ItemIndex].ProductID), Trim(Ejector.RemovableDrives[comboboxCardReaderChoose.ItemIndex].ProductRevision) ]);
 end;
 
 procedure TOptionsfrm.btnAddHotKeyClick(Sender: TObject);
@@ -341,6 +444,18 @@ begin
   except on E: EHotKeyAlreadyExists do
     ShowMessage(E.Message);
   end;
+end;
+
+procedure TOptionsfrm.btnRemoveCardReaderClick(Sender: TObject);
+begin
+  if listViewCardReaders.Items.Count = 0 then exit;
+  if listViewCardReaders.ItemIndex =-1 then exit;
+
+  RemoveCustomCardReaders(CardReaders.CardReaders[listViewCardReaders.ItemIndex].VendorID, CardReaders.CardReaders[listViewCardReaders.ItemIndex].ProductID, CardReaders.CardReaders[listViewCardReaders.ItemIndex].ProductRevision);
+  CardReaders.DeleteCardReader(listViewCardReaders.ItemIndex);
+  listViewCardReaders.Items.Delete(listViewCardReaders.ItemIndex);
+
+  UpdateListViewCardReaders;
 end;
 
 procedure TOptionsfrm.btnRemoveHotKeyClick(Sender: TObject);
@@ -423,7 +538,7 @@ end;
 
 procedure TOptionsfrm.FormClose(Sender: TObject; var Action: TCloseAction);
 var
-  i, KeyCount: integer;
+  i, KeyCount, CardReaderCount: integer;
 begin 
   if ModalResult <> mrOk then
   begin
@@ -434,9 +549,21 @@ begin
       for I := KeyCount downto  0 do  
         HotKeys.RemoveHotKeyByListIndex(i);
     end;
-    
+
     Options.RebuildHotkeys;
-    
+
+
+    //Delete any new card readers and revert to the old ones
+    if CardReaders.CardReadersCount > 0 then
+    begin
+      CardReaderCount := CardReaders.CardReadersCount - 1;
+      for I := CardReaderCount downto  0 do
+        CardReaders.DeleteCardReader(i);
+    end;
+
+    Options.RebuildCardReaders;
+
+
     Exit;
   end;
   with Options do
@@ -444,17 +571,18 @@ begin
     UseWindowsNotifications := chkBoxShowWindowsEject.Checked;
 
 
-    PreserveWindowLocation  := chkboxSaveWindowPosition.Checked;
-    PreserveWindowSize      := chkboxSaveWindowSize.Checked;
-    AutoResize              := chkBoxAutosizeWindow.Checked;
-    StartAppMinimised       := chkboxStartAppMinimized.Checked;
-    CloseToTray             := chkboxCloseToTray.Checked;
-    BalloonMessages         := chkboxShowBalloonMessages.Checked;
-    AudioNotifications      := CheckBoxAudioNotifications.Checked;
-    MinimizeToTray          := chkboxMinimizeToTray.Checked;
-    CardPolling             := chkboxCardPolling.Checked;
-    AfterEject              := radiogroupAfterEject.ItemIndex;
-    SnapTo                  := comboboxDockTo.ItemIndex;
+    PreserveWindowLocation      := chkboxSaveWindowPosition.Checked;
+    PreserveWindowSize          := chkboxSaveWindowSize.Checked;
+    AutoResize                  := chkBoxAutosizeWindow.Checked;
+    StartAppMinimised           := chkboxStartAppMinimized.Checked;
+    CloseToTray                 := chkboxCloseToTray.Checked;
+    BalloonMessages             := chkboxShowBalloonMessages.Checked;
+    AudioNotifications          := CheckBoxAudioNotifications.Checked;
+    MinimizeToTray              := chkboxMinimizeToTray.Checked;
+    CardPolling                 := chkboxCardPolling.Checked;
+    HideCardReadersWithNoMedia  := chkBoxHideCardReaders.Checked;
+    AfterEject                  := radiogroupAfterEject.ItemIndex;
+    SnapTo                      := comboboxDockTo.ItemIndex;
 
     if radioGroupCloseApps.ItemIndex = 0 then
     begin

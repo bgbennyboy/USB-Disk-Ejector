@@ -32,7 +32,7 @@ unit uDiskEjectOptions;
 interface
 uses
   Classes, Sysutils, forms, inifiles, JCLFileUtils, JCLSysInfo, JCLStrings,
-  uDiskEjectConst, uCustomHotKeyManager;
+  uDiskEjectConst, uCustomHotKeyManager, uCardReaderManager;
 
 type
   TOptions = class (TComponent)
@@ -58,10 +58,12 @@ type
     fCardPolling: boolean;              //If devices are polled every x seconds to see if they have card media loaded
     fAfterEject: integer;               //After a successful eject do 0 - nothing, 1 - exit, 2 - minimize
     fAudioNotifications: boolean;
+    fHideCardReadersWithNoMedia: boolean;
     fCloseRunningApps_Ask: boolean;
     fCloseRunningApps_Force: boolean;
     fSnapTo: integer;
     fHotKeys: TCustomHotKeyManager;
+    fCardReaders: TCardReaderManager;
 
     //function GetCommandLine_UseWindowsNotifications: boolean;
     function GetMobileMode: boolean;
@@ -90,6 +92,7 @@ type
     procedure SaveConfig;
 
     procedure RebuildHotkeys;
+    procedure RebuildCardReaders;
 
     //These arent Saved
     property CommandLine_NoSave:                  boolean read GetCommandLine_NoSave;
@@ -123,6 +126,7 @@ type
     property CloseRunningApps_Ask     : boolean   read  fCloseRunningApps_Ask     write fCloseRunningApps_Ask;
     property CloseRunningApps_Force   : boolean   read  fCloseRunningApps_Force   write fCloseRunningApps_Force;
     property AudioNotifications       : boolean   read  fAudioNotifications       write fAudioNotifications;
+    property HideCardReadersWithNoMedia: boolean  read  fHideCardReadersWithNoMedia write fHideCardReadersWithNoMedia;
     property WindowHeight             : integer   read  fWindowHeight             write fWindowHeight;
     property WindowWidth              : integer   read  fWindowWidth              write fWindowWidth;
     property WindowLeftPos            : integer   read  fWindowLeftPos            write fWindowLeftPos;
@@ -132,6 +136,7 @@ type
     property SnapTo                   : integer   read  fSnapTo                   write fSnapTo;
 
     property HotKeys     : TCustomHotKeyManager   read  fHotKeys                  write fHotKeys;
+    property CardReaders : TCardReaderManager     read  fCardReaders              write fCardReaders;
   end;
 
 var
@@ -164,28 +169,29 @@ begin
   try
     fIniFile:=TMemIniFile.Create(fOptionsFilename);
 
-    fUseWindowsNotifications:= fIniFile.ReadBool('Preferences', 'ShowWindowsEjectMessage', false);
-    //fShowNoEjectMessage:=    fIniFile.ReadBool('Preferences', 'ShowNoEjectMessage', true);
-    fPreserveWindowLocation:=  fIniFile.ReadBool('Preferences', 'PreserveWindowLocation', false);
-    fPreserveWindowSize:=      fIniFile.ReadBool('Preferences', 'PreserveWindowSize', false);
-    fAutoResize:=              fIniFile.ReadBool('Preferences', 'AutoResize', true);
-    fStartAppMinimised:=       fIniFile.ReadBool('Preferences', 'StartAppMinimised', false);
-    fCloseToTray:=             fIniFile.ReadBool('Preferences', 'CloseToTray', false);
-    fMinimizeToTray:=          fIniFile.ReadBool('Preferences', 'MinimizeToTray', true);
-    fBalloonMessages:=         fIniFile.ReadBool('Preferences', 'BalloonMessages', true);
-    fCardPolling:=             fIniFile.ReadBool('Preferences', 'CardPolling', true);
-    fCloseRunningApps_Ask:=    fIniFile.ReadBool('Preferences', 'CloseRunningApps', false);
-    fCloseRunningApps_Force:=  fIniFile.ReadBool('Preferences', 'ForceAppsClose', false);
-    fAudioNotifications:=      fIniFile.ReadBool('Preferences', 'AudioNotifications', false);
+    fUseWindowsNotifications:=    fIniFile.ReadBool('Preferences', 'ShowWindowsEjectMessage', false);
+    //fShowNoEjectMessage:=       fIniFile.ReadBool('Preferences', 'ShowNoEjectMessage', true);
+    fPreserveWindowLocation:=     fIniFile.ReadBool('Preferences', 'PreserveWindowLocation', false);
+    fPreserveWindowSize:=         fIniFile.ReadBool('Preferences', 'PreserveWindowSize', false);
+    fAutoResize:=                 fIniFile.ReadBool('Preferences', 'AutoResize', true);
+    fStartAppMinimised:=          fIniFile.ReadBool('Preferences', 'StartAppMinimised', false);
+    fCloseToTray:=                fIniFile.ReadBool('Preferences', 'CloseToTray', false);
+    fMinimizeToTray:=             fIniFile.ReadBool('Preferences', 'MinimizeToTray', true);
+    fBalloonMessages:=            fIniFile.ReadBool('Preferences', 'BalloonMessages', true);
+    fCardPolling:=                fIniFile.ReadBool('Preferences', 'CardPolling', true);
+    fCloseRunningApps_Ask:=       fIniFile.ReadBool('Preferences', 'CloseRunningApps', false);
+    fCloseRunningApps_Force:=     fIniFile.ReadBool('Preferences', 'ForceAppsClose', false);
+    fAudioNotifications:=         fIniFile.ReadBool('Preferences', 'AudioNotifications', false);
+    fHideCardReadersWithNoMedia:= fIniFile.ReadBool('Preferences', 'HideCardReadersWithNoMedia', true);
 
-    fAfterEject:=              fIniFile.ReadInteger('Preferences', 'AfterEject', 0);
+    fAfterEject:=                 fIniFile.ReadInteger('Preferences', 'AfterEject', 0);
 
-    fWindowHeight:=            fIniFile.ReadInteger('Preferences', 'WindowHeight', 233);
-    fWindowWidth:=             fIniFile.ReadInteger('Preferences', 'WindowWidth', 345);
-    fWindowLeftPos:=           fIniFile.ReadInteger('Preferences', 'WindowLeftPos', 200);
-    fWindowTopPos:=            fIniFile.ReadInteger('Preferences', 'WindowTopPos', 200);
+    fWindowHeight:=               fIniFile.ReadInteger('Preferences', 'WindowHeight', 233);
+    fWindowWidth:=                fIniFile.ReadInteger('Preferences', 'WindowWidth', 345);
+    fWindowLeftPos:=              fIniFile.ReadInteger('Preferences', 'WindowLeftPos', 200);
+    fWindowTopPos:=               fIniFile.ReadInteger('Preferences', 'WindowTopPos', 200);
 
-    fSnapTo:=                  fIniFile.ReadInteger('Preferences', 'SnapTo', 1);
+    fSnapTo:=                     fIniFile.ReadInteger('Preferences', 'SnapTo', 1);
   except
     //Report error - cant find options file
   end
@@ -198,28 +204,29 @@ var
 begin
   if CommandLine_NoSave then exit;
 
-  fIniFile.WriteBool('Preferences', 'ShowWindowsEjectMessage',  fUseWindowsNotifications);
+  fIniFile.WriteBool('Preferences', 'ShowWindowsEjectMessage',    fUseWindowsNotifications);
   //fIniFile.WriteBool('Preferences', 'ShowNoEjectMessage',       fShowNoEjectMessage);
-  fIniFile.WriteBool('Preferences', 'PreserveWindowLocation',   fPreserveWindowLocation);
-  fIniFile.WriteBool('Preferences', 'PreserveWindowSize',       fPreserveWindowSize);
-  fIniFile.WriteBool('Preferences', 'AutoResize',               fAutoResize);
-  fIniFile.WriteBool('Preferences', 'StartAppMinimised',        fStartAppMinimised);
-  fIniFile.WriteBool('Preferences', 'CloseToTray',              fCloseToTray);
-  fIniFile.WriteBool('Preferences', 'MinimizeToTray',           fMinimizeToTray);
-  fIniFile.WriteBool('Preferences', 'BalloonMessages',          fBalloonMessages);
-  fIniFile.WriteBool('Preferences', 'CardPolling',              fCardPolling);
-  fIniFile.WriteBool('Preferences', 'CloseRunningApps',         fCloseRunningApps_Ask);
-  fIniFile.WriteBool('Preferences', 'ForceAppsClose',           fCloseRunningApps_Force);
-  fIniFile.WriteBool('Preferences', 'AudioNotifications',       fAudioNotifications);
+  fIniFile.WriteBool('Preferences', 'PreserveWindowLocation',     fPreserveWindowLocation);
+  fIniFile.WriteBool('Preferences', 'PreserveWindowSize',         fPreserveWindowSize);
+  fIniFile.WriteBool('Preferences', 'AutoResize',                 fAutoResize);
+  fIniFile.WriteBool('Preferences', 'StartAppMinimised',          fStartAppMinimised);
+  fIniFile.WriteBool('Preferences', 'CloseToTray',                fCloseToTray);
+  fIniFile.WriteBool('Preferences', 'MinimizeToTray',             fMinimizeToTray);
+  fIniFile.WriteBool('Preferences', 'BalloonMessages',            fBalloonMessages);
+  fIniFile.WriteBool('Preferences', 'CardPolling',                fCardPolling);
+  fIniFile.WriteBool('Preferences', 'CloseRunningApps',           fCloseRunningApps_Ask);
+  fIniFile.WriteBool('Preferences', 'ForceAppsClose',             fCloseRunningApps_Force);
+  fIniFile.WriteBool('Preferences', 'AudioNotifications',         fAudioNotifications);
+  fIniFile.WriteBool('Preferences', 'HideCardReadersWithNoMedia', fHideCardReadersWithNoMedia);
 
-  fIniFile.WriteInteger('Preferences', 'AfterEject',            fAfterEject);
+  fIniFile.WriteInteger('Preferences', 'AfterEject',              fAfterEject);
 
-  fIniFile.WriteInteger('Preferences', 'WindowHeight',          fWindowHeight);
-  fIniFile.WriteInteger('Preferences', 'WindowWidth',           fWindowWidth);
-  fIniFile.WriteInteger('Preferences', 'WindowLeftPos',         fWindowLeftPos);
-  fIniFile.WriteInteger('Preferences', 'WindowTopPos',          fWindowTopPos);
+  fIniFile.WriteInteger('Preferences', 'WindowHeight',            fWindowHeight);
+  fIniFile.WriteInteger('Preferences', 'WindowWidth',             fWindowWidth);
+  fIniFile.WriteInteger('Preferences', 'WindowLeftPos',           fWindowLeftPos);
+  fIniFile.WriteInteger('Preferences', 'WindowTopPos',            fWindowTopPos);
 
-  fIniFile.WriteInteger('Preferences', 'SnapTo',                fSnapTo);
+  fIniFile.WriteInteger('Preferences', 'SnapTo',                  fSnapTo);
 
   //First find and delete any existing hotkeys in the ini file
   break:=false;
@@ -233,7 +240,7 @@ begin
 
     inc(i);
   end;
-  
+
   //Then save no of hotkeys and the hotkeys sections
   if fHotKeys <> nil then
   begin
@@ -257,7 +264,68 @@ begin
     fIniFile.WriteInteger('Hotkeys', 'NumHotkeys', 0);
 
 
+
+
+  //First find and delete any existing Card Readers in the ini file
+  break:=false;
+  i:=0;
+  while break = false do
+  begin
+    if fIniFile.SectionExists('Cardreader' + inttostr(i)) then
+      fIniFile.EraseSection('Cardreader' + inttostr(i))
+    else
+      break:=true;
+
+    inc(i);
+  end;
+
+  //Then save no of CardReaders and the different sections
+  if fHotKeys <> nil then
+  begin
+    if fCardReaders.CardReadersCount > 0 then
+      fIniFile.WriteInteger('Cardreaders', 'NumCardreaders', fCardReaders.CardReadersCount)
+    else
+      fIniFile.WriteInteger('Cardreaders', 'NumCardreaders', 0);
+
+    for I := 0 to fCardReaders.CardReadersCount - 1 do
+    begin
+      fIniFile.WriteString('Cardreader' + inttostr(i), 'VendorID',
+                            fCardReaders.CardReaders[i].VendorID) ;
+      fIniFile.WriteString('Cardreader' + inttostr(i), 'ProductID',
+                            fCardReaders.CardReaders[i].ProductID);
+      fIniFile.WriteString('Cardreader' + inttostr(i), 'ProductRevision',
+                            fCardReaders.CardReaders[i].ProductRevision);
+    end;
+
+  end
+  else
+    fIniFile.WriteInteger('Cardreaders', 'NumCardreaders', 0);
+
+
+
+
+
   fIniFile.UpdateFile;
+end;
+
+procedure TOptions.RebuildCardReaders;
+var
+  numCardReaders, i: integer;
+begin
+  if fCardReaders = nil then exit;
+
+
+  numCardReaders:=fIniFile.ReadInteger('Cardreaders', 'NumCardreaders', 0);
+  if numCardReaders = 0 then exit;
+
+  for I := 0 to numCardReaders - 1 do
+  begin
+    fCardReaders.AddCardReader( fIniFile.ReadString('Cardreader' + inttostr(i), 'VendorID', ''),
+                                fIniFile.ReadString('Cardreader' + inttostr(i), 'ProductID', ''),
+                                fIniFile.ReadString('Cardreader' + inttostr(i), 'ProductRevision', '')
+    );
+  end;
+
 end;
 
 procedure TOptions.RebuildHotkeys;
@@ -265,7 +333,7 @@ var
   numHotKeys, i: integer;
 begin
   if fHotKeys = nil then exit;
-  
+
 
   numHotkeys:=fIniFile.ReadInteger('Hotkeys', 'NumHotkeys', 0);
   if numHotKeys = 0 then exit;

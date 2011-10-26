@@ -41,7 +41,8 @@ uses
   uDiskEjectOptions in 'uDiskEjectOptions.pas',
   uProcessAndWindowUtils in 'uProcessAndWindowUtils.pas',
   uDiskEjectUtils in 'uDiskEjectUtils.pas',
-  uCommunicationManager in 'uCommunicationManager.pas';
+  uCommunicationManager in 'uCommunicationManager.pas',
+  uCardReaderManager in 'uCardReaderManager.pas';
 
 var
   strTempMountPoint: string;

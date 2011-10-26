@@ -91,6 +91,7 @@ const
   str_Hotkey                        = 'Hotkey: ';
   str_Hotkey_Remove_Error           = 'Error - could not remove hotkey!';
   str_Hotkey_Cannot_Restore: string = 'Hotkey cannot be restored!' + #13 + 'Please report this.';
+  str_CardReader_Remove_Error       = 'Error - could not remove card reader from list!';
 
 implementation
 
