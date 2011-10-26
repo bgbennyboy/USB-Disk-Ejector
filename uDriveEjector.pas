@@ -65,6 +65,8 @@ type
     function CheckIfDriveHasMedia(MountPoint: string): boolean;
     function GetCardPolling: boolean;
     procedure SetCardPolling(Value: boolean);
+    function GetCardPollingInterval: cardinal;
+    procedure SetCardPollingInterval(value: cardinal);
     procedure FindRemovableDrives;
     procedure ScanDrive(GUIDVolumeName: String);
 
@@ -83,7 +85,7 @@ type
 
     property DrivesCount: integer read GetDrivesCount;
     property OnCardMediaChanged: TNotifyEvent read FOnCardMediaChanged write FOnCardMediaChanged;
-    property CardPollingInterval: cardinal read FPollTimerInterval write FPollTimerInterval;
+    property CardPollingInterval: cardinal read GetCardPollingInterval write SetCardPollingInterval;
     property CardPolling: boolean read GetCardPolling write SetCardPolling;
     property Busy: boolean read GetBusy write SetBusy;
     property OnDrivesChanged: TNotifyEvent read FOnDrivesChanged write FOnDrivesChanged;
@@ -494,6 +496,11 @@ begin
   result:=fPolling;
 end;
 
+function TDriveEjector.GetCardPollingInterval: cardinal;
+begin
+  result := FPollTimerInterval;
+end;
+
 procedure TDriveEjector.SetBusy(const Value: boolean);
 begin
   fBusy := Value;
@@ -503,6 +510,12 @@ procedure TDriveEjector.SetCardPolling(Value: boolean);
 begin
   fPolling:=Value;
   PollTimer.Enabled:=fPolling;
+end;
+
+procedure TDriveEjector.SetCardPollingInterval(value: cardinal);
+begin
+  FPollTimerInterval := Value;
+  PollTimer.Interval:=fPollTimerInterval;
 end;
 
 procedure TDriveEjector.SetDriveAsCardReader(Index: Integer; CardReader: boolean);

@@ -76,6 +76,8 @@ Added since last stable release:
   Threads - stop very rare issue where device with many partitions or card reader device supporting multiple devices - not all drives were detected
   Card readers - specify which ones are readers in options - match by various fields
   Option to hide card readers with no media in
+  Option to set card polling time - default is 5 seconds
+  Option to hide all card readers
 
 TODO Before Release:
   Update credits in readme and about form
@@ -88,15 +90,12 @@ TODO Before Release:
         need to know when restoring from ini - rebuildhotkeys - if hotkey active or not + to show this in options
         
   OTHER:
-        Card readers possible alternate detection? - IF ITS NOT GOT A MOUNTPOINT - PROBABLY A CARD READER?
-        Card reader detection fails - if file is open from card or explorer window to card is open
-        Occasionally - can eject a card reader device before it shows up and is detected as card reader - before all card drives get installed
         Cant tab to the move label on main form
         Max width of form eg if mountpoint in a deeply nested folder
+        Windows 2000 support is broken
 
 Optional/Possibilities/Non-critical:
         See mindmap for full list
-        Option to set card polling time?
         Timer for ejection? - eg if running from pstart menu - run command to eject stick in 5 secs - gives time to close the menu
         Intercept shutdown/restart message and warn that usb stick is still in the drive. Dont forget it.
         REMOVEALL switch - eject every usb drive it finds?
@@ -105,8 +104,9 @@ Optional/Possibilities/Non-critical:
         Since last stable release I've disabled 'program is still running message' when app is minimized- re-enable this?
         Use new Delph 2010 hints for all controls in options
         If restarts in mobile mode and eject fails - load main app back up again somehow?
-        Customise what is displayed for each drive?
+        Customise what is displayed for each drive? Icon, colour, label etc
         Localisation
+        Card readers possible alternate detection? Use same method as windows rather than polling - is this available on all versions of windows though?
 }
 
 unit formMain;
@@ -248,7 +248,7 @@ begin
   Ejector.OnCardMediaChanged:=OnCardMediaChanged;
   Ejector.OnDrivesChanged:=OnDrivesChanged;
   Ejector.CardPolling:=Options.CardPolling;
-
+  Ejector.CardPollingInterval := Options.CardPollingInterval;
 
   FillDriveList;
 end;
@@ -424,6 +424,8 @@ begin
         popupEjectMenu.Items[i].ImageIndex:=5
     end;
   end;
+
+  ResizeTree;
 end;
 
 procedure TMainfrm.popupAboutClick(Sender: TObject);
@@ -464,12 +466,15 @@ end;
 procedure TMainfrm.popupOptionsClick(Sender: TObject);
 begin
   Optionsfrm.showmodal;
-  ResizeTree;
+
   Communicator.RefreshOptions;
+
+  Ejector.CardPollingInterval := Options.CardPollingInterval;
+  Ejector.CardPolling:=Options.CardPolling;
 
   AddCustomCardReaders;
 
-  if Options.HideCardReadersWithNoMedia then
+  {if Options.ShowCardReaders then
   begin //Might need to hide some drives
     if Tree.RootNodeCount = Tree.VisibleCount then
         FillDriveList;
@@ -478,8 +483,30 @@ begin
   begin //Some drives hidden when they shouldnt be
     if Tree.RootNodeCount <> Tree.VisibleCount then
       FillDriveList;
-  end;
+  end;}
 
+  //Rescan if this has changed
+  {if Options.CardPolling <> Ejector.CardPolling then
+  begin
+    Ejector.CardPolling:=Options.CardPolling;
+    FillDriveList;
+  end;}
+
+
+  {if Options.HideCardReadersWithNoMedia then
+  begin //Might need to hide some drives
+    if Tree.RootNodeCount = Tree.VisibleCount then
+        FillDriveList;
+  end
+  else
+  begin //Some drives hidden when they shouldnt be
+    if Tree.RootNodeCount <> Tree.VisibleCount then
+      FillDriveList;
+  end;}
+
+
+  FillDriveList; //Options probably changed - rather than lots of checking what option has changed just rescan no matter what
+  ResizeTree;
 end;
 
 procedure TMainfrm.GUIRemoveDrive(MountPoint: String; RemoveCard: boolean);
@@ -754,8 +781,8 @@ begin
     Tree.IsVisible[Tree.GetFirst] := true;
     exit;
   end;
-
-  //Hide/show drives
+{
+  //Hide/show drives - card readers with no media
   TempNode:=tree.GetFirst;
   for I := 0 to Tree.RootNodeCount - 1 do
   begin
@@ -773,6 +800,51 @@ begin
     prevNode:=TempNode;
     TempNode:=Tree.GetNext(PrevNode);
   end;
+
+  //Hide/show drives - all card readers
+  TempNode:=tree.GetFirst;
+  for I := 0 to Tree.RootNodeCount - 1 do
+  begin
+    if Options.ShowCardReaders = false then
+    begin
+      if Ejector.RemovableDrives[i].IsCardReader then
+          Tree.IsVisible[TempNode] := false
+        else
+          Tree.IsVisible[TempNode] := true;
+    end
+    else
+      Tree.IsVisible[TempNode] := true;
+
+    prevNode:=TempNode;
+    TempNode:=Tree.GetNext(PrevNode);
+  end; }
+
+  TempNode:=tree.GetFirst;
+  for I := 0 to Tree.RootNodeCount - 1 do
+  begin //First check if all card readers should be hidden
+    if Options.ShowCardReaders = false then
+    begin
+      if Ejector.RemovableDrives[i].IsCardReader then
+        Tree.IsVisible[TempNode] := false
+      else
+        Tree.IsVisible[TempNode] := true;
+    end
+    else //If not check if card readers with no media in should be hidden
+    if Options.HideCardReadersWithNoMedia then
+    begin
+      if Ejector.RemovableDrives[i].IsCardReader then
+        if Ejector.RemovableDrives[i].CardMediaPresent = false then
+          Tree.IsVisible[TempNode] := false
+        else
+          Tree.IsVisible[TempNode] := true;
+    end
+    else
+      Tree.IsVisible[TempNode] := true;
+
+    prevNode:=TempNode;
+    TempNode:=Tree.GetNext(PrevNode);
+  end;
+
 end;
 
 procedure TMainfrm.AddCustomCardReaders;

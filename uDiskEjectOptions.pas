@@ -56,6 +56,8 @@ type
     fMinimizeToTray: boolean;
     fBalloonMessages: boolean;          //Stops balloon messages from appearing when the program is run in GUI mode
     fCardPolling: boolean;              //If devices are polled every x seconds to see if they have card media loaded
+    fCardPollingInterval: integer;
+    fShowCardReaders: boolean;
     fAfterEject: integer;               //After a successful eject do 0 - nothing, 1 - exit, 2 - minimize
     fAudioNotifications: boolean;
     fHideCardReadersWithNoMedia: boolean;
@@ -95,45 +97,47 @@ type
     procedure RebuildCardReaders;
 
     //These arent Saved
-    property CommandLine_NoSave:                  boolean read GetCommandLine_NoSave;
-    property CommandLine_RemoveThis:              boolean read GetCommandLine_RemoveThis;
-    property CommandLine_RemoveLetter:            boolean read GetCommandLine_RemoveLetter;
-    property CommandLine_RemoveLabel:            boolean read GetCommandLine_RemoveLabel;
-    property CommandLine_RemoveMountPoint:        boolean read GetCommandLine_RemoveMountPoint;
-    property CommandLine_RemoveName:              boolean read GetCommandLine_RemoveName;
-    //property CommandLine_CloseApps:               boolean read GetCommandLine_CloseApps;
-   // property CommandLine_CloseAppsForce:          boolean read GetCommandLine_CloseAppsForce;
-   //property CommandLine_UseWindowsNotifications: boolean read GetCommandLine_UseWindowsNotifications;
-    property InMobileMode:                        boolean read GetMobileMode; //if running from temp folder
-    property CommandLine_Param_RemoveLetter:            string  read GetCommandLine_Param_RemoveLetter;
-    property CommandLine_Param_RemoveLabel:            string  read GetCommandLine_Param_RemoveLabel;
-    property CommandLine_Param_RemoveMountPoint:        string  read GetCommandLine_Param_RemoveMountPoint;
-    property CommandLine_Param_RemoveName:              string  read GetCommandLine_Param_RemoveName;
+    property CommandLine_NoSave:                          boolean read GetCommandLine_NoSave;
+    property CommandLine_RemoveThis:                      boolean read GetCommandLine_RemoveThis;
+    property CommandLine_RemoveLetter:                    boolean read GetCommandLine_RemoveLetter;
+    property CommandLine_RemoveLabel:                     boolean read GetCommandLine_RemoveLabel;
+    property CommandLine_RemoveMountPoint:                boolean read GetCommandLine_RemoveMountPoint;
+    property CommandLine_RemoveName:                      boolean read GetCommandLine_RemoveName;
+    //property CommandLine_CloseApps:                     boolean read GetCommandLine_CloseApps;
+   // property CommandLine_CloseAppsForce:                boolean read GetCommandLine_CloseAppsForce;
+   //property CommandLine_UseWindowsNotifications:        boolean read GetCommandLine_UseWindowsNotifications;
+    property InMobileMode:                                boolean read GetMobileMode; //if running from temp folder
+    property CommandLine_Param_RemoveLetter:              string  read GetCommandLine_Param_RemoveLetter;
+    property CommandLine_Param_RemoveLabel:               string  read GetCommandLine_Param_RemoveLabel;
+    property CommandLine_Param_RemoveMountPoint:          string  read GetCommandLine_Param_RemoveMountPoint;
+    property CommandLine_Param_RemoveName:                string  read GetCommandLine_Param_RemoveName;
     //property CommandLine_Param_CloseApps:               string  read GetCommandLine_Param_CloseApps;
     //property CommandLine_Param_CloseAppsForce:          string  read GetCommandLine_Param_CloseAppsForce;
     //property CommandLine_Param_UseWindowsNotifications: string  read GetCommandLine_Param_UseWindowsNotifications;  //returns the text switch for use with relaunching the program
 
     //These are saved
-    property UseWindowsNotifications  : boolean   read  fUseWindowsNotifications  write fUseWindowsNotifications;
-    //property ShowNoEjectMessage     : boolean   read  fShowNoEjectMessage       write fShowNoEjectMessage;
-    property PreserveWindowLocation   : boolean   read  fPreserveWindowLocation   write fPreserveWindowLocation;
-    property PreserveWindowSize       : boolean   read  fPreserveWindowSize       write fPreserveWindowSize;
-    property AutoResize               : boolean   read  fAutoResize               write fAutoResize;
-    property StartAppMinimised        : boolean   read  fStartAppMinimised        write fStartAppMinimised;
-    property CloseToTray              : boolean   read  fCloseToTray              write fCloseToTray;
-    property MinimizeToTray           : boolean   read  fMinimizeToTray           write fMinimizeToTray;
-    property BalloonMessages          : boolean   read  fBalloonMessages          write fBalloonMessages;
-    property CloseRunningApps_Ask     : boolean   read  fCloseRunningApps_Ask     write fCloseRunningApps_Ask;
-    property CloseRunningApps_Force   : boolean   read  fCloseRunningApps_Force   write fCloseRunningApps_Force;
-    property AudioNotifications       : boolean   read  fAudioNotifications       write fAudioNotifications;
-    property HideCardReadersWithNoMedia: boolean  read  fHideCardReadersWithNoMedia write fHideCardReadersWithNoMedia;
-    property WindowHeight             : integer   read  fWindowHeight             write fWindowHeight;
-    property WindowWidth              : integer   read  fWindowWidth              write fWindowWidth;
-    property WindowLeftPos            : integer   read  fWindowLeftPos            write fWindowLeftPos;
-    property WindowTopPos             : integer   read  fWindowTopPos             write fWindowTopPos;
-    property CardPolling              : boolean   read  fCardPolling              write fCardPolling;
-    property AfterEject               : integer   read  fAfterEject               write fAfterEject;
-    property SnapTo                   : integer   read  fSnapTo                   write fSnapTo;
+    property UseWindowsNotifications    : boolean   read  fUseWindowsNotifications    write fUseWindowsNotifications;
+    //property ShowNoEjectMessage       : boolean   read  fShowNoEjectMessage         write fShowNoEjectMessage;
+    property PreserveWindowLocation     : boolean   read  fPreserveWindowLocation     write fPreserveWindowLocation;
+    property PreserveWindowSize         : boolean   read  fPreserveWindowSize         write fPreserveWindowSize;
+    property AutoResize                 : boolean   read  fAutoResize                 write fAutoResize;
+    property StartAppMinimised          : boolean   read  fStartAppMinimised          write fStartAppMinimised;
+    property CloseToTray                : boolean   read  fCloseToTray                write fCloseToTray;
+    property MinimizeToTray             : boolean   read  fMinimizeToTray             write fMinimizeToTray;
+    property BalloonMessages            : boolean   read  fBalloonMessages            write fBalloonMessages;
+    property CloseRunningApps_Ask       : boolean   read  fCloseRunningApps_Ask       write fCloseRunningApps_Ask;
+    property CloseRunningApps_Force     : boolean   read  fCloseRunningApps_Force     write fCloseRunningApps_Force;
+    property AudioNotifications         : boolean   read  fAudioNotifications         write fAudioNotifications;
+    property HideCardReadersWithNoMedia : boolean   read  fHideCardReadersWithNoMedia write fHideCardReadersWithNoMedia;
+    property WindowHeight               : integer   read  fWindowHeight               write fWindowHeight;
+    property WindowWidth                : integer   read  fWindowWidth                write fWindowWidth;
+    property WindowLeftPos              : integer   read  fWindowLeftPos              write fWindowLeftPos;
+    property WindowTopPos               : integer   read  fWindowTopPos               write fWindowTopPos;
+    property ShowCardReaders            : boolean   read  fShowCardReaders            write fShowCardReaders;
+    property CardPolling                : boolean   read  fCardPolling                write fCardPolling;
+    property CardPollingInterval        : integer   read  fCardPollingInterval        write fCardPollingInterval;
+    property AfterEject                 : integer   read  fAfterEject                 write fAfterEject;
+    property SnapTo                     : integer   read  fSnapTo                     write fSnapTo;
 
     property HotKeys     : TCustomHotKeyManager   read  fHotKeys                  write fHotKeys;
     property CardReaders : TCardReaderManager     read  fCardReaders              write fCardReaders;
@@ -183,8 +187,10 @@ begin
     fCloseRunningApps_Force:=     fIniFile.ReadBool('Preferences', 'ForceAppsClose', false);
     fAudioNotifications:=         fIniFile.ReadBool('Preferences', 'AudioNotifications', false);
     fHideCardReadersWithNoMedia:= fIniFile.ReadBool('Preferences', 'HideCardReadersWithNoMedia', true);
+    fShowCardReaders:=            fIniFile.ReadBool('Preferences', 'ShowCardReaders', true);
 
     fAfterEject:=                 fIniFile.ReadInteger('Preferences', 'AfterEject', 0);
+    fCardPollingInterval:=        fIniFile.ReadInteger('Preferences', 'CardPollingInterval', 5000);
 
     fWindowHeight:=               fIniFile.ReadInteger('Preferences', 'WindowHeight', 233);
     fWindowWidth:=                fIniFile.ReadInteger('Preferences', 'WindowWidth', 345);
@@ -218,8 +224,10 @@ begin
   fIniFile.WriteBool('Preferences', 'ForceAppsClose',             fCloseRunningApps_Force);
   fIniFile.WriteBool('Preferences', 'AudioNotifications',         fAudioNotifications);
   fIniFile.WriteBool('Preferences', 'HideCardReadersWithNoMedia', fHideCardReadersWithNoMedia);
+  fIniFile.WriteBool('Preferences', 'ShowCardReaders',            fShowCardReaders);
 
   fIniFile.WriteInteger('Preferences', 'AfterEject',              fAfterEject);
+  fIniFile.WriteInteger('Preferences', 'CardPollingInterval',     fCardPollingInterval);
 
   fIniFile.WriteInteger('Preferences', 'WindowHeight',            fWindowHeight);
   fIniFile.WriteInteger('Preferences', 'WindowWidth',             fWindowWidth);

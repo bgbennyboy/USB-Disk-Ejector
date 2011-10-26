@@ -322,31 +322,60 @@ object Optionsfrm: TOptionsfrm
           Left = 1
           Top = 0
           Width = 398
-          Height = 73
+          Height = 97
           Caption = 'Card readers'
           TabOrder = 0
+          object Label3: TLabel
+            Left = 215
+            Top = 47
+            Width = 151
+            Height = 13
+            Caption = 'Search frequency (milliseconds)'
+          end
           object chkboxCardPolling: TCheckBox
             Left = 13
-            Top = 21
+            Top = 70
             Width = 180
             Height = 17
             Caption = 'Search for memory cards'
             TabOrder = 1
+            OnClick = chkboxCardPollingClick
           end
           object chkBoxHideCardReaders: TCheckBox
             Left = 13
-            Top = 44
-            Width = 268
+            Top = 47
+            Width = 196
             Height = 17
             Caption = 'Hide card readers with no media'
             TabOrder = 0
           end
+          object editSearchFrequency: TJvEdit
+            Left = 215
+            Top = 66
+            Width = 170
+            Height = 21
+            Hint = 'Default is 5000'
+            EmptyValue = '5000'
+            ClipboardCommands = [caCopy, caClear, caUndo]
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 2
+            OnKeyPress = JvEdit1KeyPress
+          end
+          object chkBoxShowCardReaders: TCheckBox
+            Left = 13
+            Top = 24
+            Width = 180
+            Height = 17
+            Caption = 'Show card readers'
+            TabOrder = 3
+          end
         end
         object GroupBox8: TGroupBox
           Left = 3
-          Top = 79
+          Top = 103
           Width = 398
-          Height = 194
+          Height = 170
           Caption = 'Define drives as card readers'
           TabOrder = 1
           object comboboxCardReaderChoose: TComboBox
@@ -380,7 +409,7 @@ object Optionsfrm: TOptionsfrm
             Left = 10
             Top = 47
             Width = 375
-            Height = 138
+            Height = 114
             Columns = <
               item
                 Caption = 'Vendor ID'
@@ -562,7 +591,7 @@ object Optionsfrm: TOptionsfrm
     Left = 72
     Top = 288
     Bitmap = {
-      494C01010700E803440430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010700E8034C0430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000006000000001002000000000000020
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

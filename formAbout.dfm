@@ -840,7 +840,7 @@ object Aboutfrm: TAboutfrm
       ''
       'Version'
       ''
-      'By Ben Gorman'
+      'By Bgbennyboy'
       ''
       'http://quick.mixnmojo.com'
       ''

@@ -28,9 +28,9 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, Buttons, ExtCtrls, CategoryButtons, ImgList,
-  JvExComCtrls, JvHotKey,
+  JvExComCtrls, JvHotKey, Character,
   {uVistaFuncs,}
-  uDiskEjectOptions, uCustomHotKeyManager, uDiskEjectConst;
+  uDiskEjectOptions, uCustomHotKeyManager, uDiskEjectConst, JvExStdCtrls, JvEdit;
 
 type
   TOptionsfrm = class(TForm)
@@ -86,6 +86,9 @@ type
     btnAddCardReader: TBitBtn;
     btnRemoveCardReader: TBitBtn;
     listviewCardReaders: TListView;
+    Label3: TLabel;
+    editSearchFrequency: TJvEdit;
+    chkBoxShowCardReaders: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -107,6 +110,8 @@ type
     procedure listviewCardReadersChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
     procedure btnAddCardReaderClick(Sender: TObject);
+    procedure JvEdit1KeyPress(Sender: TObject; var Key: Char);
+    procedure chkboxCardPollingClick(Sender: TObject);
   private
     procedure PopulateDriveLetters;
     procedure PopulateDriveNames;
@@ -188,6 +193,10 @@ begin
     radiogroupAfterEject.ItemIndex      := AfterEject;
     comboboxDockTo.ItemIndex            := SnapTo;
     chkBoxHideCardReaders.Checked       := HideCardReadersWithNoMedia;
+    chkBoxShowCardReaders.Checked       := ShowCardReaders;
+
+    editSearchFrequency.Text            := inttostr(CardPollingInterval);
+    editSearchFrequency.Enabled         := chkboxCardPolling.Checked;
 
     if (CloseRunningApps_Ask = true) and (CloseRunningApps_Force = false) then
       radioGroupCloseApps.ItemIndex:=1
@@ -231,6 +240,12 @@ begin
 
 
   PopulateCardReaderChooseBox;
+end;
+
+procedure TOptionsfrm.JvEdit1KeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (TCharacter.IsDigit(Key)) and not (CharInSet(Key, [#8])) then
+    Key := #0;
 end;
 
 procedure TOptionsfrm.listviewCardReadersChange(Sender: TObject;
@@ -496,6 +511,11 @@ begin
   if chkboxSaveWindowSize.Checked then chkBoxAutosizeWindow.Checked:=false;
 end;
 
+procedure TOptionsfrm.chkboxCardPollingClick(Sender: TObject);
+begin
+  editSearchFrequency.Enabled := chkboxCardPolling.Checked;
+end;
+
 procedure TOptionsfrm.chkboxSaveWindowPositionClick(Sender: TObject);
 begin
   if chkboxSaveWindowPosition.Checked then comboboxDockTo.ItemIndex := 0;
@@ -580,9 +600,14 @@ begin
     AudioNotifications          := CheckBoxAudioNotifications.Checked;
     MinimizeToTray              := chkboxMinimizeToTray.Checked;
     CardPolling                 := chkboxCardPolling.Checked;
+    ShowCardReaders             := chkBoxShowCardReaders.Checked;
     HideCardReadersWithNoMedia  := chkBoxHideCardReaders.Checked;
     AfterEject                  := radiogroupAfterEject.ItemIndex;
     SnapTo                      := comboboxDockTo.ItemIndex;
+
+    if editSearchFrequency.Text = '' then CardPollingInterval := 5000
+    else
+    CardPollingInterval         := strToInt(editSearchFrequency.Text);
 
     if radioGroupCloseApps.ItemIndex = 0 then
     begin
@@ -604,8 +629,6 @@ begin
 
     SaveConfig;
   end;
-
-  Ejector.CardPolling:=chkboxCardPolling.Checked;
 
 end;
 
