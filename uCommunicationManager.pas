@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2010 Bgbennyboy
+  Copyright (c) 2006 - 2011 Bgbennyboy
   Http://quick.mixnmojo.com
 ******************************************************
 }

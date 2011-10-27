@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2010 Bgbennyboy
+  Copyright (c) 2006 - 2011 Bgbennyboy
   Http://quick.mixnmojo.com
 ******************************************************
 }
@@ -28,9 +28,9 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, Buttons, ExtCtrls, CategoryButtons, ImgList,
-  JvExComCtrls, JvHotKey, Character,
-  {uVistaFuncs,}
-  uDiskEjectOptions, uCustomHotKeyManager, uDiskEjectConst, JvExStdCtrls, JvEdit;
+  JvExComCtrls, JvHotKey, Character, JvExStdCtrls, JvEdit,
+
+  uDiskEjectOptions, uCustomHotKeyManager, uDiskEjectConst, uDiskEjectUtils;
 
 type
   TOptionsfrm = class(TForm)
@@ -175,7 +175,7 @@ begin
 
   Options.CardReaders := CardReaders;
   Options.RebuildCardReaders;
-  Mainfrm.AddCustomCardReaders; //Have to do this here - cant do it in Main form as it runs from FillDriveList which is called by Create() - which runs before options or anything else is created
+  AddCustomCardReaders(CardReaders, Ejector); //Have to do this here - cant do it in Main form as it runs from FillDriveList which is called by Create() - which runs before options or anything else is created
 end;
 
 procedure TOptionsfrm.FormShow(Sender: TObject);
@@ -405,7 +405,7 @@ begin
 
   if CardReaders.AddCardReader(Trim(Ejector.RemovableDrives[comboboxCardReaderChoose.ItemIndex].VendorId), Trim(Ejector.RemovableDrives[comboboxCardReaderChoose.ItemIndex].ProductID), Trim(Ejector.RemovableDrives[comboboxCardReaderChoose.ItemIndex].ProductRevision)) = false then
   begin
-    ShowMessage('Couldnt add card reader. Maybe its already in the list?');
+    ShowMessage(str_CardReader_Add_Error);
     exit;
   end;
 
@@ -450,7 +450,7 @@ begin
 
   try
     if formMain.HotKeys.AddHotKey(HotKey1.HotKey, TempHotKeyAction, HotKeyParam) = false then
-      ShowMessage('Couldnt assign hotkey')
+      ShowMessage(str_Hotkey_Assign_Error)
     else
     begin
       case TCustomHotKey(HotKeys.HotKeys[listViewHotkeys.Items.Count]).HotKeyType of

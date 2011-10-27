@@ -63,7 +63,6 @@ object Optionsfrm: TOptionsfrm
     TabOrder = 0
     OnButtonClicked = CategoryButtons1ButtonClicked
     OnCategoryCollapase = CategoryButtons1CategoryCollapase
-    ExplicitLeft = -1
   end
   object PanelBack: TPanel
     Left = 161
@@ -84,6 +83,10 @@ object Optionsfrm: TOptionsfrm
       TabOrder = 0
       object TabSheet1: TTabSheet
         Caption = 'TabSheet1'
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object ScrollBox1: TScrollBox
           Left = 0
           Top = 0
@@ -476,6 +479,10 @@ object Optionsfrm: TOptionsfrm
       object TabSheet4: TTabSheet
         Caption = 'TabSheet4'
         ImageIndex = 3
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object ScrollBox4: TScrollBox
           Left = 0
           Top = 0
@@ -630,7 +637,7 @@ object Optionsfrm: TOptionsfrm
     Left = 72
     Top = 288
     Bitmap = {
-      494C01010700E803540430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010700E803600430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000006000000001002000000000000020
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

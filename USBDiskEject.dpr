@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2010 Bgbennyboy
+  Copyright (c) 2006 - 2011 Bgbennyboy
   Http://quick.mixnmojo.com
 ******************************************************
 }
@@ -51,7 +51,7 @@ var
   CardEject: boolean;
   MyTrayIcon: TTrayIcon;
   Communicator: TCommunicationManager;
-
+  CardReaders: TCardReaderManager;
 begin
   Application.Initialize;
 
@@ -92,46 +92,54 @@ begin
 
     Ejector:=TDriveEjector.Create;
     try
-
-      MyTrayIcon := TTrayIcon.Create(application);
+       //Correct any user-specified card reader devices
+      CardReaders := TCardReaderManager.Create;
       try
-        MyTrayIcon.Visible := true;
-        MyTrayIcon.BalloonTitle := 'USB Disk Ejector';
-        MyTrayIcon.BalloonTimeout := 4000;
+        Options.CardReaders := CardReaders;
+        Options.RebuildCardReaders;
+        AddCustomCardReaders(CardReaders, Ejector);
 
-        Communicator := TCommunicationManager.Create(MyTrayIcon);
+        MyTrayIcon := TTrayIcon.Create(application);
         try
-          if Ejector.RemoveDrive(ConvertDriveLetterToMountPoint(options.CommandLine_Param_RemoveLetter), EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
-          begin //Eject succeeded
-            if options.UseWindowsNotifications = false then  //If true then windows shows its own message
+          MyTrayIcon.Visible := true;
+          MyTrayIcon.BalloonTitle := 'USB Disk Ejector';
+          MyTrayIcon.BalloonTimeout := 4000;
+
+          Communicator := TCommunicationManager.Create(MyTrayIcon);
+          try
+            if Ejector.RemoveDrive(ConvertDriveLetterToMountPoint(options.CommandLine_Param_RemoveLetter), EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
+            begin //Eject succeeded
+              if options.UseWindowsNotifications = false then  //If true then windows shows its own message
+              begin
+                Communicator.DoMessage('(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_SUCCESSFUL, bfInfo);
+                Sleep(4000); // Give notification time to be shown
+              end;
+            end
+            else //Eject failed
+            if options.UseWindowsNotifications=false then //if its true then windows shows its own message
             begin
-              Communicator.DoMessage('(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_SUCCESSFUL, bfInfo);
+              case EjectErrorCode of
+                REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
+                REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
+                REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
+                REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+                else
+                Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+              end;
               Sleep(4000); // Give notification time to be shown
             end;
-          end
-          else //Eject failed
-          if options.UseWindowsNotifications=false then //if its true then windows shows its own message
-          begin
-            case EjectErrorCode of
-              REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-              REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
-              REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
-              REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
-              REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
-              else
-              Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-            end;
-            Sleep(4000); // Give notification time to be shown
+
+          finally
+            Communicator.Free;
           end;
 
         finally
-          Communicator.Free;
+          MyTrayIcon.Free;
         end;
-
       finally
-        MyTrayIcon.Free;
+        CardReaders.Free;
       end;
-
     finally
       Ejector.free;
     end;
@@ -162,46 +170,54 @@ begin
 
     Ejector:=TDriveEjector.Create;
     try
-
-      MyTrayIcon := TTrayIcon.Create(application);
+       //Correct any user-specified card reader devices
+      CardReaders := TCardReaderManager.Create;
       try
-        MyTrayIcon.Visible := true;
-        MyTrayIcon.BalloonTitle := 'USB Disk Ejector';
-        MyTrayIcon.BalloonTimeout := 4000;
+        Options.CardReaders := CardReaders;
+        Options.RebuildCardReaders;
+        AddCustomCardReaders(CardReaders, Ejector);
 
-        Communicator := TCommunicationManager.Create(MyTrayIcon);
+        MyTrayIcon := TTrayIcon.Create(application);
         try
-          if Ejector.RemoveDrive(options.CommandLine_Param_RemoveMountPoint, EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
-          begin //Eject succeeded
-            if options.UseWindowsNotifications = false then  //If true then windows shows its own message
+          MyTrayIcon.Visible := true;
+          MyTrayIcon.BalloonTitle := 'USB Disk Ejector';
+          MyTrayIcon.BalloonTimeout := 4000;
+
+          Communicator := TCommunicationManager.Create(MyTrayIcon);
+          try
+            if Ejector.RemoveDrive(options.CommandLine_Param_RemoveMountPoint, EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
+            begin //Eject succeeded
+              if options.UseWindowsNotifications = false then  //If true then windows shows its own message
+              begin
+                Communicator.DoMessage('(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_SUCCESSFUL, bfInfo);
+                Sleep(4000); // Give notification time to be shown
+              end;
+            end
+            else //Eject failed
+            if options.UseWindowsNotifications=false then //if its true then windows shows its own message
             begin
-              Communicator.DoMessage('(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_SUCCESSFUL, bfInfo);
+              case EjectErrorCode of
+                REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
+                REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
+                REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
+                REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+                else
+                Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+              end;
               Sleep(4000); // Give notification time to be shown
             end;
-          end
-          else //Eject failed
-          if options.UseWindowsNotifications=false then //if its true then windows shows its own message
-          begin
-            case EjectErrorCode of
-              REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-              REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
-              REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
-              REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
-              REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
-              else
-              Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-            end;
-            Sleep(4000); // Give notification time to be shown
+
+          finally
+            Communicator.Free;
           end;
 
         finally
-          Communicator.Free;
+          MyTrayIcon.Free;
         end;
-
       finally
-        MyTrayIcon.Free;
+        CardReaders.Free;
       end;
-
     finally
       Ejector.free;
     end;
@@ -250,27 +266,37 @@ begin
           begin
             Ejector:=TDriveEjector.Create;
             try
-              if Ejector.RemoveDrive(strTempMountPoint, EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
-              begin //Eject succeeded
-                if options.UseWindowsNotifications = false then  //If true then windows shows its own message
+              //Correct any user-specified card reader devices
+              CardReaders := TCardReaderManager.Create;
+              try
+                Options.CardReaders := CardReaders;
+                Options.RebuildCardReaders;
+                AddCustomCardReaders(CardReaders, Ejector);
+
+                if Ejector.RemoveDrive(strTempMountPoint, EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
+                begin //Eject succeeded
+                  if options.UseWindowsNotifications = false then  //If true then windows shows its own message
+                  begin
+                    Communicator.DoMessage('(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_SUCCESSFUL, bfInfo);
+                    Sleep(4000); // Give notification time to be shown
+                  end;
+                end
+                else //Eject failed
+                if options.UseWindowsNotifications=false then //if its true then windows shows its own message
                 begin
-                  Communicator.DoMessage('(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_SUCCESSFUL, bfInfo);
+                  case EjectErrorCode of
+                    REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                    REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
+                    REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
+                    REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
+                    REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+                    else
+                    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                  end;
                   Sleep(4000); // Give notification time to be shown
                 end;
-              end
-              else //Eject failed
-              if options.UseWindowsNotifications=false then //if its true then windows shows its own message
-              begin
-                case EjectErrorCode of
-                  REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-                  REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
-                  REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
-                  REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
-                  REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
-                  else
-                  Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-                end;
-                Sleep(4000); // Give notification time to be shown
+              finally
+                CardReaders.Free;
               end;
             finally
               Ejector.Free;
@@ -327,27 +353,37 @@ begin
           begin
             Ejector:=TDriveEjector.Create;
             try
-              if Ejector.RemoveDrive(strTempMountPoint, EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
-              begin //Eject succeeded
-                if options.UseWindowsNotifications = false then  //If true then windows shows its own message
+              //Correct any user-specified card reader devices
+              CardReaders := TCardReaderManager.Create;
+              try
+                Options.CardReaders := CardReaders;
+                Options.RebuildCardReaders;
+                AddCustomCardReaders(CardReaders, Ejector);
+
+                if Ejector.RemoveDrive(strTempMountPoint, EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
+                begin //Eject succeeded
+                  if options.UseWindowsNotifications = false then  //If true then windows shows its own message
+                  begin
+                    Communicator.DoMessage('(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_SUCCESSFUL, bfInfo);
+                    Sleep(4000); // Give notification time to be shown
+                  end;
+                end
+                else //Eject failed
+                if options.UseWindowsNotifications=false then //if its true then windows shows its own message
                 begin
-                  Communicator.DoMessage('(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_SUCCESSFUL, bfInfo);
+                  case EjectErrorCode of
+                    REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                    REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
+                    REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
+                    REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
+                    REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+                    else
+                    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                  end;
                   Sleep(4000); // Give notification time to be shown
                 end;
-              end
-              else //Eject failed
-              if options.UseWindowsNotifications=false then //if its true then windows shows its own message
-              begin
-                case EjectErrorCode of
-                  REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-                  REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
-                  REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
-                  REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
-                  REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
-                  else
-                  Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-                end;
-                Sleep(4000); // Give notification time to be shown
+              finally
+                CardReaders.Free;
               end;
             finally
               Ejector.Free;

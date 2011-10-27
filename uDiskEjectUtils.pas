@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2010 Bgbennyboy
+  Copyright (c) 2006 - 2011 Bgbennyboy
   Http://quick.mixnmojo.com
 ******************************************************
 }
@@ -27,7 +27,7 @@ interface
 
 uses Classes, sysutils, windows, forms, jclsysinfo, jclfileutils, jclshell,
      JCLRegistry, dialogs, ShellAPI, JwaWindows,
-     uDiskEjectConst, uDriveEjector;
+     uDiskEjectConst, uDriveEjector, uCardReaderManager;
 
 type
   TTaskBarPos = (_TOP, _BOTTOM, _LEFT, _RIGHT, _NONE);
@@ -35,6 +35,7 @@ type
 procedure CreateCleanupBatFileAndRun;
 procedure StartInMobileMode(Parameters: string);
 procedure RemoveReadOnlyFileAttribute(FileName: string);
+procedure AddCustomCardReaders(CardReaders: TCardReaderManager;  Ejector: TDriveEjector);
 function GetTaskBarHeight: integer;
 function GetTaskBarWidth: integer;
 function GetTaskBarPos: TTaskBarPos;
@@ -112,6 +113,29 @@ begin
     ShowMessage(str_Temp_Folder_Write_Error);
   end;
 end;
+
+procedure AddCustomCardReaders(CardReaders: TCardReaderManager;  Ejector: TDriveEjector);
+var
+  i, j: integer;
+begin
+  if CardReaders = nil then exit;
+  if CardReaders.CardReadersCount = 0 then exit;
+
+  for I := 0 to CardReaders.CardReadersCount - 1 do
+  begin
+    for J := 0 to Ejector.DrivesCount - 1 do
+    begin
+      if (Trim(Ejector.RemovableDrives[J].VendorId) = CardReaders.CardReaders[i].VendorID) and
+         (Trim(Ejector.RemovableDrives[J].ProductID) = CardReaders.CardReaders[i].ProductID) and
+         (Trim(Ejector.RemovableDrives[J].ProductRevision) = CardReaders.CardReaders[i].ProductRevision) then
+         begin
+          Ejector.SetDriveAsCardReader(J, true);
+          break;
+         end;
+    end;
+  end;
+end;
+
 
 function MatchNameToMountPoint(Name: string): string;
 var

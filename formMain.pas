@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2010 Bgbennyboy
+  Copyright (c) 2006 - 2011 Bgbennyboy
   Http://quick.mixnmojo.com
 ******************************************************
 }
@@ -34,7 +34,7 @@ DO BEFORE RELEASE:
 }
 
 {
-Added since beta 2:
+Added since last stable release:
   App instances - now only 1 allowed - launching second instance restores the first - only tested on vista
   Made 'search for memory cards' enabled by default
   DiskEjectUtils - CreateCleanupBatFileAndRun - removed legacy winexec and replaced with shellexec
@@ -51,8 +51,6 @@ Added since beta 2:
   Added /removelabel
   Updated hotkey support with new commands
   Fixed hotkeys still being removed in options dialog if cancel was pressed
-
-Added since last stable release:
   Firewire support - in gui + command line
   Autosize window - resize doesnt go behind taskbar - sizes up if necessary - always stays on screen. Smart resizing
   Autosize option
@@ -88,9 +86,6 @@ TODO Before Release:
         Need switch for command line card reader device - will eject card by default but not reader
         Need to fix in start in mobile mode - need switch for eject card or card reader device
 
-  HOTKEYS:
-        need to know when restoring from ini - rebuildhotkeys - if hotkey active or not + to show this in options
-        
   OTHER:
         Cant tab to the move label on main form
         Windows 2000 support is broken
@@ -105,6 +100,7 @@ Optional/Possibilities/Non-critical:
         Use new Delph 2010 hints for all controls in options
         If restarts in mobile mode and eject fails - load main app back up again somehow?
         Customise what is displayed for each drive? Icon, colour, label etc
+        Hotkeys - need to know when restoring from ini - rebuildhotkeys - if hotkey active or not + to show this in options
         Localisation
         Card readers possible alternate detection? Use same method as windows rather than polling - is this available on all versions of windows though?
 }
@@ -163,7 +159,6 @@ type
     procedure TreeMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure JvAppInstances1Rejected(Sender: TObject);
-    procedure AddCustomCardReaders;
   private
     DrivePopups: array of TMenuItem;
     Procedure MinimizeClick(Sender:TObject);
@@ -473,43 +468,13 @@ begin
 
   Ejector.CardPollingInterval := Options.CardPollingInterval;
   Ejector.CardPolling:=Options.CardPolling;
+
   if Options.MaxWidth >0 then
     Mainfrm.Constraints.MaxWidth := options.MaxWidth
   else
     Mainfrm.Constraints.MaxWidth := null;
 
-  AddCustomCardReaders;
-
-  {if Options.ShowCardReaders then
-  begin //Might need to hide some drives
-    if Tree.RootNodeCount = Tree.VisibleCount then
-        FillDriveList;
-  end
-  else
-  begin //Some drives hidden when they shouldnt be
-    if Tree.RootNodeCount <> Tree.VisibleCount then
-      FillDriveList;
-  end;}
-
-  //Rescan if this has changed
-  {if Options.CardPolling <> Ejector.CardPolling then
-  begin
-    Ejector.CardPolling:=Options.CardPolling;
-    FillDriveList;
-  end;}
-
-
-  {if Options.HideCardReadersWithNoMedia then
-  begin //Might need to hide some drives
-    if Tree.RootNodeCount = Tree.VisibleCount then
-        FillDriveList;
-  end
-  else
-  begin //Some drives hidden when they shouldnt be
-    if Tree.RootNodeCount <> Tree.VisibleCount then
-      FillDriveList;
-  end;}
-
+  AddCustomCardReaders(CardReaders, Ejector);
 
   FillDriveList; //Options probably changed - rather than lots of checking what option has changed just rescan no matter what
   ResizeTree;
@@ -767,7 +732,7 @@ begin
     Tree.Selected[Tree.GetFirst]:=true;
   end;
 
-  AddCustomCardReaders;
+  AddCustomCardReaders(CardReaders, Ejector);
   ChangeDriveVisibility;
   AddDrivePopups;
   Tree.EndUpdate;
@@ -833,29 +798,6 @@ begin
     end;
   finally
     List.Free;
-  end;
-
-end;
-
-procedure TMainfrm.AddCustomCardReaders;
-var
-  i, j: integer;
-begin
-  if CardReaders = nil then exit;
-  if CardReaders.CardReadersCount = 0 then exit;
-
-  for I := 0 to CardReaders.CardReadersCount - 1 do
-  begin
-    for J := 0 to Ejector.DrivesCount - 1 do
-    begin
-      if (Trim(Ejector.RemovableDrives[J].VendorId) = CardReaders.CardReaders[i].VendorID) and
-         (Trim(Ejector.RemovableDrives[J].ProductID) = CardReaders.CardReaders[i].ProductID) and
-         (Trim(Ejector.RemovableDrives[J].ProductRevision) = CardReaders.CardReaders[i].ProductRevision) then
-         begin
-          Ejector.SetDriveAsCardReader(J, true);
-          break;
-         end;
-    end;
   end;
 
 end;

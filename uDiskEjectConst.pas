@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2010 Bgbennyboy
+  Copyright (c) 2006 - 2011 Bgbennyboy
   Http://quick.mixnmojo.com
 ******************************************************
 }
@@ -90,8 +90,10 @@ const
   str_Hotkey_NoParam                = 'No parameter given! Select or type an item into the combobox and try again.';
   str_Hotkey                        = 'Hotkey: ';
   str_Hotkey_Remove_Error           = 'Error - could not remove hotkey!';
+  str_Hotkey_Assign_Error           = 'Couldnt assign hotkey';
   str_Hotkey_Cannot_Restore: string = 'Hotkey cannot be restored!' + #13 + 'Please report this.';
   str_CardReader_Remove_Error       = 'Error - could not remove card reader from list!';
+  str_CardReader_Add_Error          = 'Couldnt add card reader. Maybe its already in the list?';
 
 implementation
 

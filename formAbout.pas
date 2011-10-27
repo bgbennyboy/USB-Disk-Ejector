@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2010 Bgbennyboy
+  Copyright (c) 2006 - 2011 Bgbennyboy
   Http://quick.mixnmojo.com
 ******************************************************
 }
@@ -29,7 +29,6 @@ uses
   Windows, Forms, Controls, Classes, Graphics,
   ExtCtrls, JvExControls, JvScrollText,
   JCLShell,
-  {uVistaFuncs,}
   uDiskEjectConst, pngimage;
 
 
@@ -79,7 +78,7 @@ end;
 
 procedure TAboutfrm.Image1Click(Sender: TObject);
 begin
-  shellexec(0, 'open', 'Http://quick.mixnmojo.com/','', '', SW_SHOWNORMAL);
+  shellexec(0, 'open', 'Http://quick.mixnmojo.com','', '', SW_SHOWNORMAL);
 end;
 
 end.
