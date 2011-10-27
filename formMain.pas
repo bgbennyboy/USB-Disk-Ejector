@@ -78,6 +78,7 @@ Added since last stable release:
   Option to hide card readers with no media in
   Option to set card polling time - default is 5 seconds
   Option to hide all card readers
+  Option to show drives with multiple partitions as one entry - with different icon to indicate this
 
 TODO Before Release:
   Update credits in readme and about form
@@ -99,7 +100,6 @@ Optional/Possibilities/Non-critical:
         Timer for ejection? - eg if running from pstart menu - run command to eject stick in 5 secs - gives time to close the menu
         Intercept shutdown/restart message and warn that usb stick is still in the drive. Dont forget it.
         REMOVEALL switch - eject every usb drive it finds?
-        Hide partitions from same drive
         Hide certain drives when specified by user?
         Since last stable release I've disabled 'program is still running message' when app is minimized- re-enable this?
         Use new Delph 2010 hints for all controls in options
@@ -118,9 +118,8 @@ uses
   graphics, JwaWindows, types,
   JvExControls, JvLabel, JvAppInst,
   JclSysInfo, JclShell, JCLStrings,
-  Menus, VirtualTrees,
+  Menus, VirtualTrees, Generics.Collections,
 
-  {uVistaFuncs,}
   uDiskEjectConst, uDiskEjectUtils, uDiskEjectOptions,
   uCustomHotKeyManager, uCardReaderManager, uDriveEjector, uCommunicationManager, JvMenus;
 
@@ -774,6 +773,7 @@ end;
 procedure TMainfrm.ChangeDriveVisibility;
 var
   i: integer;
+  List: TList<Integer>;
   TempNode, PrevNode: pVirtualNode;
 begin
   if Ejector.DrivesCount = 0 then //Make that first node visible again
@@ -781,68 +781,51 @@ begin
     Tree.IsVisible[Tree.GetFirst] := true;
     exit;
   end;
-{
-  //Hide/show drives - card readers with no media
+
+  //Make all drives visible again to start with
   TempNode:=tree.GetFirst;
   for I := 0 to Tree.RootNodeCount - 1 do
   begin
-    if Options.HideCardReadersWithNoMedia then
-    begin
-      if Ejector.RemovableDrives[i].IsCardReader then
-        if Ejector.RemovableDrives[i].CardMediaPresent = false then
-          Tree.IsVisible[TempNode] := false
-        else
-          Tree.IsVisible[TempNode] := true;
-    end
-    else
-      Tree.IsVisible[TempNode] := true;
-
+    Tree.IsVisible[TempNode] := true;
     prevNode:=TempNode;
     TempNode:=Tree.GetNext(PrevNode);
   end;
 
-  //Hide/show drives - all card readers
-  TempNode:=tree.GetFirst;
-  for I := 0 to Tree.RootNodeCount - 1 do
-  begin
-    if Options.ShowCardReaders = false then
-    begin
-      if Ejector.RemovableDrives[i].IsCardReader then
-          Tree.IsVisible[TempNode] := false
-        else
-          Tree.IsVisible[TempNode] := true;
-    end
-    else
-      Tree.IsVisible[TempNode] := true;
+  List := TList<Integer>.Create();
+  try
+    TempNode:=tree.GetFirst;
+    for I := 0 to Tree.RootNodeCount - 1 do
+    begin //First check if all card readers should be hidden
+      if Options.ShowCardReaders = false then
+      begin
+        if Ejector.RemovableDrives[i].IsCardReader then
+          Tree.IsVisible[TempNode] := false;
+      end
+      else //If not check if card readers with no media in should be hidden
+      if Options.HideCardReadersWithNoMedia then
+      begin
+        if Ejector.RemovableDrives[i].IsCardReader then
+          if Ejector.RemovableDrives[i].CardMediaPresent = false then
+            Tree.IsVisible[TempNode] := false;
+      end;
 
-    prevNode:=TempNode;
-    TempNode:=Tree.GetNext(PrevNode);
-  end; }
+      if Options.ShowPartitionsAsOne then
+      begin
+        if Ejector.RemovableDrives[i].IsCardReader = false then  //Dont group card readers
+        begin
+          if Ejector.RemovableDrives[i].HasSiblings then
+            if List.IndexOf(Ejector.RemovableDrives[i].ParentDevInst) <> -1 then //drive with same is already found and visible
+              Tree.IsVisible[TempNode] := false
+            else
+              List.Add(Ejector.RemovableDrives[i].ParentDevInst);
+            end;
+      end;
 
-  TempNode:=tree.GetFirst;
-  for I := 0 to Tree.RootNodeCount - 1 do
-  begin //First check if all card readers should be hidden
-    if Options.ShowCardReaders = false then
-    begin
-      if Ejector.RemovableDrives[i].IsCardReader then
-        Tree.IsVisible[TempNode] := false
-      else
-        Tree.IsVisible[TempNode] := true;
-    end
-    else //If not check if card readers with no media in should be hidden
-    if Options.HideCardReadersWithNoMedia then
-    begin
-      if Ejector.RemovableDrives[i].IsCardReader then
-        if Ejector.RemovableDrives[i].CardMediaPresent = false then
-          Tree.IsVisible[TempNode] := false
-        else
-          Tree.IsVisible[TempNode] := true;
-    end
-    else
-      Tree.IsVisible[TempNode] := true;
-
-    prevNode:=TempNode;
-    TempNode:=Tree.GetNext(PrevNode);
+      prevNode:=TempNode;
+      TempNode:=Tree.GetNext(PrevNode);
+    end;
+  finally
+    List.Free;
   end;
 
 end;
@@ -873,6 +856,7 @@ end;
 procedure TMainfrm.AddDrivePopups;
 var
   i: integer;
+  TempNode, PrevNode: pVirtualNode;
 begin
   if DrivePopups <> nil then
   for i:=low(DrivePopups) to high(DrivePopups) do
@@ -886,6 +870,7 @@ begin
     exit;
   end;
 
+  TempNode:=tree.GetFirst;
   SetLength(DrivePopups, Ejector.DrivesCount);
   for i:=low(DrivePopups) to high(DrivePopups) do
   begin
@@ -916,6 +901,9 @@ begin
           DrivePopups[i].ImageIndex:=5
       end
       else
+      if Options.ShowPartitionsAsOne and Ejector.RemovableDrives[i].HasSiblings then
+        DrivePopups[i].ImageIndex:=8
+      else
         DrivePopups[i].ImageIndex:=3;
     end;
 
@@ -923,15 +911,14 @@ begin
     DrivePopups[i].OnClick:=DrivePopupMenuHandler;
 
 
-    //Show/hide popups
-    if Options.HideCardReadersWithNoMedia then
-    begin
-      if Ejector.RemovableDrives[i].IsCardReader then
-        if Ejector.RemovableDrives[i].CardMediaPresent = false then
-          DrivePopups[i].Visible :=false;
-    end
+    //Show/hide popups - match to whether node is visible in the tree
+    if Tree.IsVisible[TempNode] then
+      DrivePopups[i].Visible := true
     else
-      DrivePopups[i].Visible := true;
+    DrivePopups[i].Visible := false;
+
+    prevNode:=TempNode;
+    TempNode:=Tree.GetNext(PrevNode);
   end;
 end;
 
@@ -959,10 +946,13 @@ begin
       else
         ImageIndex:=3
     end
-
+    else
+    if Options.ShowPartitionsAsOne and Ejector.RemovableDrives[node.Index].HasSiblings then
+      ImageIndex:=6
     else
       ImageIndex:=0;
   end;
+
 end;
 
 procedure TMainfrm.TreeGetNodeDataSize(Sender: TBaseVirtualTree;

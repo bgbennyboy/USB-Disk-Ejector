@@ -77,7 +77,7 @@ object Optionsfrm: TOptionsfrm
       Top = 1
       Width = 411
       Height = 307
-      ActivePage = TabSheet5
+      ActivePage = TabSheet1
       Align = alClient
       Style = tsButtons
       TabOrder = 0
@@ -112,6 +112,16 @@ object Optionsfrm: TOptionsfrm
               Enabled = False
               State = cbChecked
               TabOrder = 0
+            end
+            object chkboxShowPartitionsAsOne: TCheckBox
+              Left = 13
+              Top = 45
+              Width = 332
+              Height = 17
+              Caption = 'Show drives with partitions as one entry'
+              Checked = True
+              State = cbChecked
+              TabOrder = 1
             end
           end
           object GroupBox6: TGroupBox
@@ -591,7 +601,7 @@ object Optionsfrm: TOptionsfrm
     Left = 72
     Top = 288
     Bitmap = {
-      494C01010700E8034C0430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010700E803500430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000006000000001002000000000000020
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

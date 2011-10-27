@@ -89,6 +89,7 @@ type
     Label3: TLabel;
     editSearchFrequency: TJvEdit;
     chkBoxShowCardReaders: TCheckBox;
+    chkboxShowPartitionsAsOne: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -194,6 +195,7 @@ begin
     comboboxDockTo.ItemIndex            := SnapTo;
     chkBoxHideCardReaders.Checked       := HideCardReadersWithNoMedia;
     chkBoxShowCardReaders.Checked       := ShowCardReaders;
+    chkboxShowPartitionsAsOne.Checked   := ShowPartitionsAsOne;
 
     editSearchFrequency.Text            := inttostr(CardPollingInterval);
     editSearchFrequency.Enabled         := chkboxCardPolling.Checked;
@@ -602,6 +604,7 @@ begin
     CardPolling                 := chkboxCardPolling.Checked;
     ShowCardReaders             := chkBoxShowCardReaders.Checked;
     HideCardReadersWithNoMedia  := chkBoxHideCardReaders.Checked;
+    ShowPartitionsAsOne         := chkboxShowPartitionsAsOne.Checked;
     AfterEject                  := radiogroupAfterEject.ItemIndex;
     SnapTo                      := comboboxDockTo.ItemIndex;
 

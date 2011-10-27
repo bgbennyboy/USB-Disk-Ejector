@@ -64,6 +64,7 @@ type
     fCloseRunningApps_Ask: boolean;
     fCloseRunningApps_Force: boolean;
     fSnapTo: integer;
+    fShowPartitionsAsOne: boolean;
     fHotKeys: TCustomHotKeyManager;
     fCardReaders: TCardReaderManager;
 
@@ -133,6 +134,7 @@ type
     property WindowWidth                : integer   read  fWindowWidth                write fWindowWidth;
     property WindowLeftPos              : integer   read  fWindowLeftPos              write fWindowLeftPos;
     property WindowTopPos               : integer   read  fWindowTopPos               write fWindowTopPos;
+    property ShowPartitionsAsOne        : boolean   read  fShowPartitionsAsOne        write fShowPartitionsAsOne;
     property ShowCardReaders            : boolean   read  fShowCardReaders            write fShowCardReaders;
     property CardPolling                : boolean   read  fCardPolling                write fCardPolling;
     property CardPollingInterval        : integer   read  fCardPollingInterval        write fCardPollingInterval;
@@ -186,6 +188,7 @@ begin
     fCloseRunningApps_Ask:=       fIniFile.ReadBool('Preferences', 'CloseRunningApps', false);
     fCloseRunningApps_Force:=     fIniFile.ReadBool('Preferences', 'ForceAppsClose', false);
     fAudioNotifications:=         fIniFile.ReadBool('Preferences', 'AudioNotifications', false);
+    fShowPartitionsAsOne:=        fIniFile.ReadBool('Preferences', 'ShowPartitionsAsOne', false);
     fHideCardReadersWithNoMedia:= fIniFile.ReadBool('Preferences', 'HideCardReadersWithNoMedia', true);
     fShowCardReaders:=            fIniFile.ReadBool('Preferences', 'ShowCardReaders', true);
 
@@ -223,6 +226,7 @@ begin
   fIniFile.WriteBool('Preferences', 'CloseRunningApps',           fCloseRunningApps_Ask);
   fIniFile.WriteBool('Preferences', 'ForceAppsClose',             fCloseRunningApps_Force);
   fIniFile.WriteBool('Preferences', 'AudioNotifications',         fAudioNotifications);
+  fIniFile.WriteBool('Preferences', 'ShowPartitionsAsOne',        fShowPartitionsAsOne);
   fIniFile.WriteBool('Preferences', 'HideCardReadersWithNoMedia', fHideCardReadersWithNoMedia);
   fIniFile.WriteBool('Preferences', 'ShowCardReaders',            fShowCardReaders);
 

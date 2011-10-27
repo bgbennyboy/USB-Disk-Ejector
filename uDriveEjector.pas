@@ -40,6 +40,7 @@ type
     ProductID: string;
     ProductRevision: string;
     IsCardReader: boolean;
+    HasSiblings: boolean;
     CardMediaPresent: boolean;
     BusType: integer;
     ParentDevInst: integer;
@@ -71,6 +72,7 @@ type
     procedure ScanDrive(GUIDVolumeName: String);
 
     procedure CheckForCardReaders;
+    procedure CheckForSiblings;
     procedure OnTimer (Sender:TObject);
     procedure SetBusy(const Value: boolean);
     procedure DeleteFromDrivesArray(const Index: Cardinal);
@@ -323,6 +325,8 @@ begin
   //Finally check if any are card readers
   CheckForCardReaders;
 
+  //Check if it has siblings (multiple partitions but 1 drive)
+  CheckForSiblings;
 
   {--------------------------------------------------------------------------------------}
   //HACK - delete card readers
@@ -467,6 +471,9 @@ begin
 
     //Is Card Reader   //This is checked and changed later
     RemovableDrives[high(RemovableDrives)].IsCardReader := false;
+
+    //Has siblings  //This is checked and changed later
+    RemovableDrives[high(RemovableDrives)].HasSiblings := false;
 
     //Does Card Reader have media in it?
     if CheckIfDriveHasMedia(DriveMountPoint) then
@@ -617,6 +624,21 @@ begin
       else
         RemovableDrives[i].IsCardReader:=True //Matching devices with parent inst but differing device names are likely to be card readers
   end;
+end;
+
+procedure TDriveEjector.CheckForSiblings;
+var
+  i: integer;
+begin
+  for I := 0 to DrivesCount - 1 do
+  begin
+    if GetNoDevicesWithSameParentInst(RemovableDrives[i].ParentDevInst) > 0 then
+      if GetNoDevicesWithSameProductID(RemovableDrives[i].ProductId) > 0 then //Hard drive partitions
+        RemovableDrives[i].HasSiblings := true
+      else
+        RemovableDrives[i].HasSiblings := false;
+  end;
+
 end;
 
 function TDriveEjector.CheckIfDriveHasMedia(MountPoint: string): boolean;
