@@ -63,6 +63,7 @@ object Optionsfrm: TOptionsfrm
     TabOrder = 0
     OnButtonClicked = CategoryButtons1ButtonClicked
     OnCategoryCollapase = CategoryButtons1CategoryCollapase
+    ExplicitLeft = -1
   end
   object PanelBack: TPanel
     Left = 161
@@ -77,7 +78,7 @@ object Optionsfrm: TOptionsfrm
       Top = 1
       Width = 411
       Height = 307
-      ActivePage = TabSheet1
+      ActivePage = TabSheet2
       Align = alClient
       Style = tsButtons
       TabOrder = 0
@@ -183,60 +184,51 @@ object Optionsfrm: TOptionsfrm
           TabOrder = 0
           object GroupBox4: TGroupBox
             Left = 1
-            Top = 0
+            Top = -1
             Width = 398
-            Height = 274
+            Height = 154
             Caption = 'Positioning'
             TabOrder = 0
             object Label1: TLabel
               Left = 13
-              Top = 46
+              Top = 23
               Width = 115
               Height = 13
               Caption = 'Keep window docked in:'
             end
             object Label2: TLabel
               Left = 13
-              Top = 104
+              Top = 81
               Width = 127
               Height = 13
               Caption = 'Or use manual positioning:'
             end
             object chkboxSaveWindowSize: TCheckBox
               Left = 13
-              Top = 149
-              Width = 180
-              Height = 17
-              Caption = 'Keep custom window size'
-              TabOrder = 3
-              OnClick = chkboxSaveWindowSizeClick
-            end
-            object chkBoxAutosizeWindow: TCheckBox
-              Left = 13
-              Top = 21
-              Width = 180
-              Height = 17
-              Caption = 'Autosize the window'
-              TabOrder = 0
-              OnClick = chkBoxAutosizeWindowClick
-            end
-            object chkboxSaveWindowPosition: TCheckBox
-              Left = 13
               Top = 126
               Width = 180
               Height = 17
-              Caption = 'Keep custom window position'
+              Caption = 'Keep custom window size'
               TabOrder = 2
+              OnClick = chkboxSaveWindowSizeClick
+            end
+            object chkboxSaveWindowPosition: TCheckBox
+              Left = 13
+              Top = 103
+              Width = 180
+              Height = 17
+              Caption = 'Keep custom window position'
+              TabOrder = 1
               OnClick = chkboxSaveWindowPositionClick
             end
             object comboboxDockTo: TComboBox
               Left = 13
-              Top = 65
+              Top = 42
               Width = 188
               Height = 21
               Style = csDropDownList
               ItemIndex = 1
-              TabOrder = 1
+              TabOrder = 0
               Text = 'Bottom Right'
               OnChange = comboboxDockToChange
               Items.Strings = (
@@ -245,6 +237,43 @@ object Optionsfrm: TOptionsfrm
                 'Top Right'
                 'Top Left'
                 'Bottom Left')
+            end
+          end
+          object GroupBox9: TGroupBox
+            Left = 1
+            Top = 159
+            Width = 398
+            Height = 116
+            Caption = 'Sizing'
+            TabOrder = 1
+            object Label4: TLabel
+              Left = 13
+              Top = 52
+              Width = 112
+              Height = 13
+              Caption = 'Maximum window width'
+            end
+            object editMaxWindowWidth: TJvEdit
+              Left = 13
+              Top = 71
+              Width = 188
+              Height = 21
+              Hint = 'Default is 0 - for no maximum'
+              EmptyValue = '0'
+              ClipboardCommands = [caCopy, caClear, caUndo]
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 0
+              OnKeyPress = editMaxWindowWidthKeyPress
+            end
+            object chkBoxAutosizeWindow: TCheckBox
+              Left = 13
+              Top = 26
+              Width = 180
+              Height = 17
+              Caption = 'Autosize the window'
+              TabOrder = 1
+              OnClick = chkBoxAutosizeWindowClick
             end
           end
         end
@@ -370,7 +399,7 @@ object Optionsfrm: TOptionsfrm
             ParentShowHint = False
             ShowHint = True
             TabOrder = 2
-            OnKeyPress = JvEdit1KeyPress
+            OnKeyPress = editMaxWindowWidthKeyPress
           end
           object chkBoxShowCardReaders: TCheckBox
             Left = 13
@@ -601,7 +630,7 @@ object Optionsfrm: TOptionsfrm
     Left = 72
     Top = 288
     Bitmap = {
-      494C01010700E803500430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010700E803540430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000006000000001002000000000000020
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

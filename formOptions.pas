@@ -47,7 +47,6 @@ type
     GroupBox4: TGroupBox;
     Label1: TLabel;
     chkboxSaveWindowSize: TCheckBox;
-    chkBoxAutosizeWindow: TCheckBox;
     chkboxSaveWindowPosition: TCheckBox;
     comboboxDockTo: TComboBox;
     TabSheet3: TTabSheet;
@@ -90,6 +89,10 @@ type
     editSearchFrequency: TJvEdit;
     chkBoxShowCardReaders: TCheckBox;
     chkboxShowPartitionsAsOne: TCheckBox;
+    GroupBox9: TGroupBox;
+    editMaxWindowWidth: TJvEdit;
+    Label4: TLabel;
+    chkBoxAutosizeWindow: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -111,7 +114,7 @@ type
     procedure listviewCardReadersChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
     procedure btnAddCardReaderClick(Sender: TObject);
-    procedure JvEdit1KeyPress(Sender: TObject; var Key: Char);
+    procedure editMaxWindowWidthKeyPress(Sender: TObject; var Key: Char);
     procedure chkboxCardPollingClick(Sender: TObject);
   private
     procedure PopulateDriveLetters;
@@ -199,6 +202,7 @@ begin
 
     editSearchFrequency.Text            := inttostr(CardPollingInterval);
     editSearchFrequency.Enabled         := chkboxCardPolling.Checked;
+    editMaxWindowWidth.Text             := inttostr(MaxWidth);
 
     if (CloseRunningApps_Ask = true) and (CloseRunningApps_Force = false) then
       radioGroupCloseApps.ItemIndex:=1
@@ -244,7 +248,7 @@ begin
   PopulateCardReaderChooseBox;
 end;
 
-procedure TOptionsfrm.JvEdit1KeyPress(Sender: TObject; var Key: Char);
+procedure TOptionsfrm.editMaxWindowWidthKeyPress(Sender: TObject; var Key: Char);
 begin
   if not (TCharacter.IsDigit(Key)) and not (CharInSet(Key, [#8])) then
     Key := #0;
@@ -611,6 +615,11 @@ begin
     if editSearchFrequency.Text = '' then CardPollingInterval := 5000
     else
     CardPollingInterval         := strToInt(editSearchFrequency.Text);
+
+    if editMaxWindowWidth.Text  = '' then MaxWidth :=0
+    else
+    MaxWidth                    := strToInt(editMaxWindowWidth.Text);
+
 
     if radioGroupCloseApps.ItemIndex = 0 then
     begin

@@ -79,6 +79,7 @@ Added since last stable release:
   Option to set card polling time - default is 5 seconds
   Option to hide all card readers
   Option to show drives with multiple partitions as one entry - with different icon to indicate this
+  Option to set max width of form - useful eg if mountpoint in a deeply nested folder
 
 TODO Before Release:
   Update credits in readme and about form
@@ -92,7 +93,6 @@ TODO Before Release:
         
   OTHER:
         Cant tab to the move label on main form
-        Max width of form eg if mountpoint in a deeply nested folder
         Windows 2000 support is broken
 
 Optional/Possibilities/Non-critical:
@@ -219,6 +219,9 @@ begin
 
   //Load strings
   UpdateFormStrings;
+
+  if Options.MaxWidth >0 then
+    Mainfrm.Constraints.MaxWidth := options.MaxWidth;
 
   if options.PreserveWindowSize then
   begin
@@ -470,6 +473,10 @@ begin
 
   Ejector.CardPollingInterval := Options.CardPollingInterval;
   Ejector.CardPolling:=Options.CardPolling;
+  if Options.MaxWidth >0 then
+    Mainfrm.Constraints.MaxWidth := options.MaxWidth
+  else
+    Mainfrm.Constraints.MaxWidth := null;
 
   AddCustomCardReaders;
 

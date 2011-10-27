@@ -64,6 +64,7 @@ type
     fCloseRunningApps_Ask: boolean;
     fCloseRunningApps_Force: boolean;
     fSnapTo: integer;
+    fMaxWidth: integer;
     fShowPartitionsAsOne: boolean;
     fHotKeys: TCustomHotKeyManager;
     fCardReaders: TCardReaderManager;
@@ -140,6 +141,7 @@ type
     property CardPollingInterval        : integer   read  fCardPollingInterval        write fCardPollingInterval;
     property AfterEject                 : integer   read  fAfterEject                 write fAfterEject;
     property SnapTo                     : integer   read  fSnapTo                     write fSnapTo;
+    property MaxWidth                   : integer   read  fMaxWidth                   write fMaxWidth;
 
     property HotKeys     : TCustomHotKeyManager   read  fHotKeys                  write fHotKeys;
     property CardReaders : TCardReaderManager     read  fCardReaders              write fCardReaders;
@@ -194,6 +196,7 @@ begin
 
     fAfterEject:=                 fIniFile.ReadInteger('Preferences', 'AfterEject', 0);
     fCardPollingInterval:=        fIniFile.ReadInteger('Preferences', 'CardPollingInterval', 5000);
+    fMaxWidth:=                   fIniFile.ReadInteger('Preferences', 'MaxWidth', 0);
 
     fWindowHeight:=               fIniFile.ReadInteger('Preferences', 'WindowHeight', 233);
     fWindowWidth:=                fIniFile.ReadInteger('Preferences', 'WindowWidth', 345);
@@ -232,6 +235,7 @@ begin
 
   fIniFile.WriteInteger('Preferences', 'AfterEject',              fAfterEject);
   fIniFile.WriteInteger('Preferences', 'CardPollingInterval',     fCardPollingInterval);
+  fIniFile.WriteInteger('Preferences', 'MaxWidth',                fMaxWidth);
 
   fIniFile.WriteInteger('Preferences', 'WindowHeight',            fWindowHeight);
   fIniFile.WriteInteger('Preferences', 'WindowWidth',             fWindowWidth);
