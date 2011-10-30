@@ -32,6 +32,7 @@ uses
   dialogs,
   extctrls,
   windows,
+  JclStrings,
   formMain in 'formMain.pas' {Mainfrm},
   uDriveEjector in 'uDriveEjector.pas',
   uDiskEjectConst in 'uDiskEjectConst.pas',
@@ -45,7 +46,7 @@ uses
   uCardReaderManager in 'uCardReaderManager.pas';
 
 var
-  strTempMountPoint: string;
+  strTempMountPoint, strNewMountPoint: string;
   Ejector: TDriveEjector;
   EjectErrorCode: integer;
   CardEject: boolean;
@@ -80,7 +81,7 @@ begin
     {Check if trying to eject drive that program is running from
     and check if mobile is false - in case somehow temp folder is on the drive
     you're trying to eject}
-    if (IsAppRunningFromThisLocation(options.CommandLine_Param_RemoveLetter) ) and
+    if (IsAppRunningFromThisLocation( ConvertDriveLetterToMountPoint(options.CommandLine_Param_RemoveLetter)) ) and
        (options.InMobileMode = false) then
     begin
       StartInMobileMode('/NOSAVE ' + '/REMOVELETTER ' + options.CommandLine_Param_RemoveLetter);
@@ -160,8 +161,8 @@ begin
     you're trying to eject}
     if ( IsAppRunningFromThisLocation( options.CommandLine_Param_RemoveMountPoint ) ) and
        (options.InMobileMode = false) then
-    begin
-      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + options.CommandLine_Param_RemoveMountPoint);
+    begin                                                   //Add quotes back - if param has spaces then param is truncated without the quotes
+      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(options.CommandLine_Param_RemoveMountPoint, '"') );
       exit;
     end;
 
@@ -185,7 +186,9 @@ begin
 
           Communicator := TCommunicationManager.Create(MyTrayIcon);
           try
-            if Ejector.RemoveDrive(options.CommandLine_Param_RemoveMountPoint, EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
+            //Mountpoints are case sensitive when ejecting so - try and get proper cased mountpoint
+            strNewMountPoint := GetCaseSensitiveMountPointName(options.CommandLine_Param_RemoveMountPoint, Ejector);
+            if Ejector.RemoveDrive(strNewMountPoint, EjectErrorCode, options.UseWindowsNotifications, CardEject, options.CloseRunningApps_Ask, options.CloseRunningApps_Force) then
             begin //Eject succeeded
               if options.UseWindowsNotifications = false then  //If true then windows shows its own message
               begin
@@ -243,8 +246,8 @@ begin
     you're trying to eject}
     if ( IsAppRunningFromThisLocation( strTempMountPoint ) ) and
        (options.InMobileMode = false) and (strTempMountPoint <> '')then
-    begin
-      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + strTempMountPoint);
+    begin                                                   //Add quotes if param has spaces then param is truncated without the quotes
+      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(strTempMountPoint, '"'));
       exit;
     end
     else
@@ -330,8 +333,8 @@ begin
     you're trying to eject}
     if ( IsAppRunningFromThisLocation( strTempMountPoint ) ) and
        (options.InMobileMode = false) and (strTempMountPoint <> '')then
-    begin
-      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + strTempMountPoint);
+    begin                                                   //Add quotes - if param has spaces then param is truncated without the quotes
+      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(strTempMountPoint, '"'));
       exit;
     end
     else

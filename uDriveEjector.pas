@@ -44,6 +44,7 @@ type
     CardMediaPresent: boolean;
     BusType: integer;
     ParentDevInst: integer;
+    SiblingIndexes: array of integer;
   end;
 
   TDriveEjector = class
@@ -570,6 +571,7 @@ begin
   begin
     //First try and close explorer windows
     EnumWindows(@EnumWindowsAndCloseFunc, LParam(MountPoint));
+
     //Then try and close any programs that might be running from the drive
     if CloseRunningApps then
       CloseAppsRunningFrom(MountPoint, ForceRunningAppsClosure);
@@ -628,17 +630,31 @@ end;
 
 procedure TDriveEjector.CheckForSiblings;
 var
-  i: integer;
+  i, j: integer;
 begin
-  for I := 0 to DrivesCount - 1 do
+  {for I := 0 to DrivesCount - 1 do
   begin
     if GetNoDevicesWithSameParentInst(RemovableDrives[i].ParentDevInst) > 0 then
       if GetNoDevicesWithSameProductID(RemovableDrives[i].ProductId) > 0 then //Hard drive partitions
         RemovableDrives[i].HasSiblings := true
       else
         RemovableDrives[i].HasSiblings := false;
-  end;
+  end;}
 
+  for I := 0 to DrivesCount - 1 do
+    for J := 0 to DrivesCount - 1 do
+    begin
+      if I = J then continue; //Same drive
+      if RemovableDrives[i].ParentDevInst = RemovableDrives[j].ParentDevInst then
+        if RemovableDrives[i].ProductId = RemovableDrives[j].ProductId then
+        begin
+          RemovableDrives[i].HasSiblings := true;
+          SetLength(RemovableDrives[i].SiblingIndexes, length(RemovableDrives[i].SiblingIndexes) + 1);
+          RemovableDrives[i].SiblingIndexes[High(RemovableDrives[i].SiblingIndexes)] := j;
+        end
+        else
+          RemovableDrives[i].HasSiblings := false;
+    end;
 end;
 
 function TDriveEjector.CheckIfDriveHasMedia(MountPoint: string): boolean;

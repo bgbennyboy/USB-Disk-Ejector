@@ -178,8 +178,10 @@ function EnumChildWindowsAndCloseFunc(Handle: THandle;
 var
   WindowText : array[0.. MAX_PATH - 1] of Char;
   FoundPos: integer;
+  Res: cardinal;
 begin
-  PostMessage(Handle, WM_GETTEXT, sizeof(WindowText), integer(@WindowText[0]));
+  //PostMessage(Handle, WM_GETTEXT, sizeof(WindowText), integer(@WindowText[0]));
+  SendMessageTimeout(Handle, WM_GETTEXT, SizeOf(WindowText), Cardinal(@WindowText[0]), SMTO_ABORTIFHUNG or SMTO_NORMAL, 500, Res);
 
   FoundPos:= pos(DriveString, WindowText);
   if FoundPos > 0 then
@@ -197,13 +199,15 @@ var
   WindowName, WindowText: array[0..MAX_PATH] of Char;
   FoundPos: integer;
   DriveString: string;
+  Res: cardinal;
 begin
   //Build the search string
   DriveString:= ExcludeTrailingPathDelimiter ( MountPoint );
 
   //Get the window caption
-  PostMessage(Handle, WM_GETTEXT, SizeOf(WindowName), integer(@WindowName[0]));
-
+  //PostMessage(Handle, WM_GETTEXT, SizeOf(WindowName), cardinal(@WindowName[0]));
+  {SendMessage sometimes never returned, PostMessage just didnt work a lot of the time, so SendMessageTimeout is the alternative}
+  SendMessageTimeout(Handle, WM_GETTEXT, SizeOf(WindowName), Cardinal(@WindowName[0]), SMTO_ABORTIFHUNG or SMTO_NORMAL, 500, Res);
   //Look for CabinetWClass in all windows
   WindowHandle := FindWindow('CabinetWClass', WindowName);
   if WindowHandle > 0 then //Found an explorer window

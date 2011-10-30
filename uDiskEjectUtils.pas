@@ -26,7 +26,7 @@ unit uDiskEjectUtils;
 interface
 
 uses Classes, sysutils, windows, forms, jclsysinfo, jclfileutils, jclshell,
-     JCLRegistry, dialogs, ShellAPI, JwaWindows,
+     JCLRegistry, dialogs, ShellAPI, JwaWindows, JCLStrings,
      uDiskEjectConst, uDriveEjector, uCardReaderManager;
 
 type
@@ -50,6 +50,7 @@ function BalloonTipsEnabled: boolean;
 function IsWindowsVistaorLater : Boolean;
 function FindMountPoint(Directory: string): string;
 function IsAppRunningFromThisLocation(MountPoint: string): boolean;
+function GetCaseSensitiveMountPointName(MountPoint: string;  Ejector: TDriveEjector): string;
 
 implementation
 
@@ -419,6 +420,15 @@ begin
     CurrPath := ExtractFilePath( ExcludeTrailingPathDelimiter( CurrPath ) );
   end;
 
+  {Fix - always capitalise the drive letter. If started from command line with lower case drive then ExtractFilePath gives the drive as lower case
+         see http://quick.mixnmojo.com/usb-disk-eject-1-2-beta-4-last-beta-before-release-hopefully#comments for more info}
+  if result <> '' then
+  begin
+    result[1] := Uppercase(Result)[1];
+
+    //Add quotes in case path has spaces - these get stripped out later anyway
+    result := StrQuote(result, '"');
+  end;
 end;
 
 function IsAppRunningFromThisLocation(MountPoint: string): boolean;
@@ -468,5 +478,26 @@ begin
   end;
 
 end;
+
+{Looks up mountpoint in Ejector.Driveslist and returns the proper case sensitive mountpoint
+ If it doesnt exist - just return the original string - simpler to error out later rather than now}
+function GetCaseSensitiveMountPointName(MountPoint: string;  Ejector: TDriveEjector): string;
+var
+  i: integer;
+begin
+  result := MountPoint; //If it doesnt exist - just return the original string - simpler to error out later rather than now
+  if Ejector = nil then exit;
+  if Ejector.DrivesCount = 0 then exit;
+
+  for I := 0 to Ejector.DrivesCount - 1 do
+  begin
+    if AnsiCompareText(MountPoint, Ejector.RemovableDrives[i].DriveMountPoint) = 0 then
+    begin
+      result := Ejector.RemovableDrives[i].DriveMountPoint;
+      break;
+    end;
+  end;
+end;
+
 
 end.

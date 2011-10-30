@@ -32,7 +32,9 @@ unit uDiskEjectOptions;
 interface
 uses
   Classes, Sysutils, forms, inifiles, JCLFileUtils, JCLSysInfo, JCLStrings,
-  uDiskEjectConst, uCustomHotKeyManager, uCardReaderManager;
+  uDiskEjectConst, uCustomHotKeyManager, uCardReaderManager,
+
+  dialogs;
 
 type
   TOptions = class (TComponent)
@@ -481,10 +483,17 @@ begin
   if (intTemp <> -1) and (ParamCount >= intTemp + 1) then
   begin
     tempParam:=ParamStr(intTemp + 1); //Paramstr automatically parses out speech marks
-    result:=IncludeTrailingPathDelimiter(tempParam) ;
+    tempParam:=Trim(TempParam); //Remove trailing spaces
+
+    if length(tempParam) = 1 then //Its a drive letter on its own
+      result:=IncludeTrailingPathDelimiter(tempParam + ':')
+    else
+      result:=IncludeTrailingPathDelimiter(tempParam);
   end
   else
     result:='';
+
+    //Showmessage('command line param ' + result);
 end;
 
 function TOptions.GetCommandLine_Param_RemoveName: string;

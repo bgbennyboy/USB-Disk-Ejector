@@ -78,6 +78,11 @@ Added since last stable release:
   Option to hide all card readers
   Option to show drives with multiple partitions as one entry - with different icon to indicate this
   Option to set max width of form - useful eg if mountpoint in a deeply nested folder
+  Fixed - problem with commandline - if drive letter called as lower case ExtractFilePath - would pass the letter as lower case
+  Fixed - EmumWindows - problem - explorer windows are now closed successfully again
+  Fixed - Ejecting mountpoint from command line - case mattered - even when doing /REMOVETHIS - now looks up the correctly cased mountpoint name
+  Fixed - quotes around params when restarting in mobile mode
+  Fixed - /REMOVELETTER not restarting in mobile mode when attempting to eject self
 
 TODO Before Release:
   Update credits in readme and about form
@@ -87,8 +92,10 @@ TODO Before Release:
         Need to fix in start in mobile mode - need switch for eject card or card reader device
 
   OTHER:
+     *********   Fix multiline on form - static text now not showing******************
         Cant tab to the move label on main form
         Windows 2000 support is broken
+        Potential problem - EmumWindowsAndClose (and close apps running from) - only closes windows for that drive - not for other partitions - may need to do it for siblings too
 
 Optional/Possibilities/Non-critical:
         See mindmap for full list
@@ -159,6 +166,11 @@ type
     procedure TreeMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure JvAppInstances1Rejected(Sender: TObject);
+    procedure TreeInitNode(Sender: TBaseVirtualTree; ParentNode,
+      Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+    procedure TreeDrawText(Sender: TBaseVirtualTree; TargetCanvas: TCanvas;
+      Node: PVirtualNode; Column: TColumnIndex; const Text: string;
+      const CellRect: TRect; var DefaultDraw: Boolean);
   private
     DrivePopups: array of TMenuItem;
     Procedure MinimizeClick(Sender:TObject);
@@ -487,7 +499,7 @@ begin
   //Check if trying to eject drive that its running from
   if IsAppRunningFromThisLocation( MountPoint ) then
   begin
-    StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrDoubleQuote(MountPoint));
+    StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(MountPoint, '"'));
     CloseProgram;
     Exit;
   end;
@@ -702,6 +714,70 @@ begin
   MountPoint:=Ejector.RemovableDrives[Tree.focusednode.Index].DriveMountPoint;
 
   GUIRemoveDrive(MountPoint, RemoveCard);
+end;
+
+procedure TMainfrm.TreeDrawText(Sender: TBaseVirtualTree; TargetCanvas: TCanvas;
+  Node: PVirtualNode; Column: TColumnIndex; const Text: string;
+  const CellRect: TRect; var DefaultDraw: Boolean);
+{var
+  DrawFormat : Cardinal;
+  R : TRect;
+  s : WideString; }
+  {NodeWidth, EllipsisWidth : Integer; }
+  {Size: TSize;
+begin
+  if  Column in [0] then
+  begin
+    DefaultDraw := False;
+    R := CellRect;
+    GetTextExtentPoint32W(TargetCanvas.Handle, PWideChar(Text), Length(Text), Size);
+    //NodeWidth := Size.cx + 2 * Tree.TextMargin;
+    GetTextExtentPoint32W(TargetCanvas.Handle, '...', 3, Size);
+    {EllipsisWidth := Size.cx;
+    if ((NodeWidth - 2 * Tree.TextMargin) > R.Right - R.Left) then
+         s := EllipseString(TargetCanvas.Handle, Text, R.Right - R.Left, EllipsisWidth)
+    else s := Text;}
+    {S := Text;
+
+    DrawFormat := DT_NOPREFIX or DT_VCENTER;// or DT_SINGLELINE;
+    Windows.DrawTextW(TargetCanvas.Handle, PWideChar(s), Length(s), R, DrawFormat);
+  end; }
+
+{var
+  R: TRect;
+begin
+    R := CellRect;
+    R.Top := 0;
+    R.Bottom := 0;
+    Windows.DrawText(TargetCanvas.Handle, PChar(String(Text)), Length(Text), R, DT_CALCRECT);
+
+    R.Top := ((CellRect.Bottom - CellRect.Top) - R.Bottom) div 2;
+    if R.Top < 0 then R.Top := 0;
+    Inc(R.Top, CellRect.Top);
+    R.Bottom := CellRect.Bottom;
+
+    Windows.DrawText(TargetCanvas.Handle, PChar(String(Text)), Length(Text), R, DT_END_ELLIPSIS or DT_NOPREFIX or DT_WORDBREAK or
+    DT_EDITCONTROL);  }
+
+var
+  DrawRect: TRect;
+  DrawFlags: Cardinal;
+  DrawParams: TDrawTextParams;
+begin
+  defaultdraw:=false;  //BUT multiline stops static text being drawn by this and the default vt method
+
+  DrawRect := CellRect;
+  DrawFlags := DT_END_ELLIPSIS or DT_NOPREFIX or DT_WORDBREAK or
+    DT_EDITCONTROL;
+  DrawText(TargetCanvas.Handle, PChar(Text), -1, DrawRect, DrawFlags or DT_CALCRECT);
+  DrawRect.Right := CellRect.Right;
+  if DrawRect.Bottom < CellRect.Bottom then
+    OffsetRect(DrawRect, 0, (CellRect.Bottom - DrawRect.Bottom) div 2)
+  else
+    DrawRect.Bottom := CellRect.Bottom;
+  ZeroMemory(@DrawParams, SizeOf(DrawParams));
+  DrawParams.cbSize := SizeOf(DrawParams);
+  DrawTextEx(TargetCanvas.Handle, PChar(Text), -1, DrawRect, DrawFlags, @DrawParams);
 end;
 
 procedure TMainfrm.DrivePopupMenuHandler(Sender: TObject);
@@ -922,9 +998,24 @@ begin
   end
   else
   case texttype of
-    ttNormal: CellText:='(' + Ejector.RemovableDrives[Node.Index].DriveMountPoint + ') ' + Ejector.RemovableDrives[Node.Index].VendorId + ' ' + Ejector.RemovableDrives[Node.Index].ProductID;
-    ttStatic: CellText:= Ejector.RemovableDrives[Node.Index].VolumeLabel;
+    ttNormal:
+      if Options.ShowPartitionsAsOne and Ejector.RemovableDrives[Node.Index].HasSiblings then //Just show name not mountpoint
+        CellText:=Ejector.RemovableDrives[Node.Index].VendorId + ' ' + Ejector.RemovableDrives[Node.Index].ProductID
+      else
+      CellText:='(' + Ejector.RemovableDrives[Node.Index].DriveMountPoint + ') ' + #13#10 + Ejector.RemovableDrives[Node.Index].VendorId + ' ' + Ejector.RemovableDrives[Node.Index].ProductID;
+
+    ttStatic:
+      if Options.ShowPartitionsAsOne and Ejector.RemovableDrives[Node.Index].HasSiblings then //Dont show the label
+        CellText := ''
+      else
+        CellText:= Ejector.RemovableDrives[Node.Index].VolumeLabel;
   end;
+end;
+
+procedure TMainfrm.TreeInitNode(Sender: TBaseVirtualTree; ParentNode,
+  Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+begin
+  Include(InitialStates, ivsMultiline);
 end;
 
 procedure TMainfrm.TreeKeyPress(Sender: TObject; var Key: Char);
