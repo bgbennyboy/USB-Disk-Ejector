@@ -83,6 +83,8 @@ Added since last stable release:
   Fixed - Ejecting mountpoint from command line - case mattered - even when doing /REMOVETHIS - now looks up the correctly cased mountpoint name
   Fixed - quotes around params when restarting in mobile mode
   Fixed - /REMOVELETTER not restarting in mobile mode when attempting to eject self
+  Fixed - EnumWindowAndClose and CloseAppsRunningFrom - now take into account partitions on same drive
+  Fixed - Slightly clearer error codes - show code if its unknown (and not 0)
 
 TODO Before Release:
   Update credits in readme and about form
@@ -92,13 +94,10 @@ TODO Before Release:
         Need to fix in start in mobile mode - need switch for eject card or card reader device
 
   OTHER:
-     *********   Fix multiline on form - static text now not showing******************
-     Fix drive width in multiline
      For grouped drives show mountpoint/drive letters somehow
 
         Cant tab to the move label on main form
         Windows 2000 support is broken
-        Potential problem - EmumWindowsAndClose (and close apps running from) - only closes windows for that drive - not for other partitions - may need to do it for siblings too
 
 Optional/Possibilities/Non-critical:
         See mindmap for full list
@@ -518,7 +517,9 @@ begin
         REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
         REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError)
         else
-        Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+        if EjectError = 0 then Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError) //error code 0 means successful!
+        else
+        Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(EjectError), bfError);
       end;
     end;
 

@@ -572,9 +572,26 @@ begin
     //First try and close explorer windows
     EnumWindows(@EnumWindowsAndCloseFunc, LParam(MountPoint));
 
+    //Then close windows for other drives if its a partition
+    if RemovableDrives[DriveIndex].HasSiblings then
+      for I := low(RemovableDrives[DriveIndex].SiblingIndexes) to high(RemovableDrives[DriveIndex].SiblingIndexes) do
+      begin
+        EnumWindows(@EnumWindowsAndCloseFunc, LParam( RemovableDrives[RemovableDrives[DriveIndex].SiblingIndexes[i]].DriveMountPoint ));
+      end;
+
+
     //Then try and close any programs that might be running from the drive
     if CloseRunningApps then
+    begin
       CloseAppsRunningFrom(MountPoint, ForceRunningAppsClosure);
+
+      //Then close for other drives if its a partition
+      if RemovableDrives[DriveIndex].HasSiblings then
+      for I := low(RemovableDrives[DriveIndex].SiblingIndexes) to high(RemovableDrives[DriveIndex].SiblingIndexes) do
+      begin
+        CloseAppsRunningFrom(RemovableDrives[RemovableDrives[DriveIndex].SiblingIndexes[i]].DriveMountPoint, ForceRunningAppsClosure);
+      end;
+    end;
 
 
     //CHECK - stop card style eject if device isnt a card
@@ -585,7 +602,7 @@ begin
     begin
       if EjectCard(MountPoint, EjectErrorCode) then
       begin
-        RemovableDrives[i].CardMediaPresent:=false;
+        RemovableDrives[DriveIndex].CardMediaPresent:=false;
         result:=true
       end;
     end
@@ -755,7 +772,7 @@ begin
       if GetLastError = 32 then
         EjectErrorCode:=REMOVE_ERROR_DISK_IN_USE
       else
-        EjectErrorCode:=REMOVE_ERROR_UNKNOWN_ERROR;
+        EjectErrorCode:=GetLastError; //REMOVE_ERROR_UNKNOWN_ERROR;
 
       exit;
     end;
@@ -831,7 +848,7 @@ begin
     if GetLastError = 32 then
       EjectErrorCode:=REMOVE_ERROR_DISK_IN_USE
     else
-      EjectErrorCode:=REMOVE_ERROR_UNKNOWN_ERROR;
+      EjectErrorCode:=GetLastError;//REMOVE_ERROR_UNKNOWN_ERROR;
    end;
 end;
 

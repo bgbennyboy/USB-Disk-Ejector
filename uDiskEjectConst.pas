@@ -49,13 +49,14 @@ const
                         ;
 
 
-  str_Remove_Error_Unknown_Error    = 'The disk could not be ejected - an unknown error was encountered.' + #13#13 + 'Please report this.';
-  str_Remove_Error_Drive_Not_Found  = 'The disk could not be ejected - the corresponding drive letter/mountpoint could not be found.';
-  str_Remove_Error_Name_Not_Found   = 'The disk could not be ejected - the corresponding drive name could not be found.';
-  str_Remove_Error_Label_Not_Found  = 'The disk could not be ejected - the corresponding drive label could not be found.';
-  str_Remove_Error_Disk_In_Use      = 'The disk could not be ejected because it is in use.' + #13 + 'Close any programs that might be using the disk and try again.';
-  str_Remove_Error_No_Card_Media    = 'No memory card was found in the specified drive.';
-  str_Remove_Error_Winapi_Error     = 'The disk could not be ejected - a winapi error was encountered.' + #13#13 + 'Please report this.';
+  str_Remove_Error_Unknown_Error             = 'The disk could not be ejected - an unknown error was encountered.' + #13#13 + 'Please report this.';
+  str_Remove_Error_Drive_Not_Found           = 'The disk could not be ejected - the corresponding drive letter/mountpoint could not be found.';
+  str_Remove_Error_Name_Not_Found            = 'The disk could not be ejected - the corresponding drive name could not be found.';
+  str_Remove_Error_Label_Not_Found           = 'The disk could not be ejected - the corresponding drive label could not be found.';
+  str_Remove_Error_Disk_In_Use               = 'The disk could not be ejected because it is in use.' + #13 + 'Close any programs that might be using the disk and try again.';
+  str_Remove_Error_No_Card_Media             = 'No memory card was found in the specified drive.';
+  str_Remove_Error_Winapi_Error              = 'The disk could not be ejected - a winapi error was encountered.' + #13#13 + 'Please report this.';
+  str_Remove_Error_Unknown_Error_Report_Code = 'The disk could not be ejected - an unknown error was encountered.' + #13#13 + 'Error code: ';
 
   str_Remove_Successful             = 'The disk was ejected successfully!';
 
