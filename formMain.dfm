@@ -71,11 +71,9 @@ object Mainfrm: TMainfrm
     TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale]
     TreeOptions.PaintOptions = [toHideFocusRect, toPopupMode, toShowButtons, toShowDropmark, toThemeAware, toUseBlendedImages, toUseBlendedSelection]
     TreeOptions.SelectionOptions = [toFullRowSelect, toRightClickSelect]
-    TreeOptions.StringOptions = [toSaveCaptions, toShowStaticText, toAutoAcceptEditChange]
     OnDblClick = TreeDblClick
     OnDrawText = TreeDrawText
     OnGetText = TreeGetText
-    OnPaintText = TreePaintText
     OnGetImageIndex = TreeGetImageIndex
     OnGetNodeDataSize = TreeGetNodeDataSize
     OnInitNode = TreeInitNode
@@ -142,7 +140,7 @@ object Mainfrm: TMainfrm
     Left = 16
     Top = 112
     Bitmap = {
-      494C01010700D0013C0130003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010700D001440130003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000006000000001002000000000000020
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2531,7 +2529,7 @@ object Mainfrm: TMainfrm
     Left = 80
     Top = 112
     Bitmap = {
-      494C0101090038022C0210001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010109003802340210001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

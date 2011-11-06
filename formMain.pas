@@ -93,6 +93,9 @@ TODO Before Release:
 
   OTHER:
      *********   Fix multiline on form - static text now not showing******************
+     Fix drive width in multiline
+     For grouped drives show mountpoint/drive letters somehow
+
         Cant tab to the move label on main form
         Windows 2000 support is broken
         Potential problem - EmumWindowsAndClose (and close apps running from) - only closes windows for that drive - not for other partitions - may need to do it for siblings too
@@ -153,9 +156,6 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure TrayIcon1Click(Sender: TObject);
     procedure TreeKeyPress(Sender: TObject; var Key: Char);
-    procedure TreePaintText(Sender: TBaseVirtualTree;
-      const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-      TextType: TVSTTextType);
     procedure popupExitClick(Sender: TObject);
     procedure popupOptionsClick(Sender: TObject);
     procedure popupmenuTrayPopup(Sender: TObject);
@@ -569,8 +569,12 @@ begin
     else
       statictext:='';
 
-    if mainfrm.Canvas.TextWidth(tree.Text[TempNode, 0] + Statictext)  > NodeWidth then
-      NodeWidth := mainfrm.Canvas.TextWidth(tree.Text[TempNode, 0] + Statictext);
+    //Account for Multiline - first line and second line
+    if mainfrm.Canvas.TextWidth( StrBefore(#13#10, tree.Text[TempNode, 0]) )  > NodeWidth then
+      NodeWidth := mainfrm.Canvas.TextWidth( StrBefore(#13#10, tree.Text[TempNode, 0] ) );
+
+    if mainfrm.Canvas.TextWidth( StrAfter(#13#10, tree.Text[TempNode, 0]) )  > NodeWidth then
+      NodeWidth := mainfrm.Canvas.TextWidth( StrAfter(#13#10, tree.Text[TempNode, 0] ) );
 
     prevNode:=TempNode;
     TempNode:=Tree.GetNext(PrevNode);
@@ -684,7 +688,6 @@ begin
 
   //Stops the occasional statictext glitches where they arent fully repainted
   tree.ReinitChildren(tree.RootNode, true);
-
   Tree.EndUpdate;
 end;
 
@@ -719,65 +722,44 @@ end;
 procedure TMainfrm.TreeDrawText(Sender: TBaseVirtualTree; TargetCanvas: TCanvas;
   Node: PVirtualNode; Column: TColumnIndex; const Text: string;
   const CellRect: TRect; var DefaultDraw: Boolean);
-{var
-  DrawFormat : Cardinal;
-  R : TRect;
-  s : WideString; }
-  {NodeWidth, EllipsisWidth : Integer; }
-  {Size: TSize;
-begin
-  if  Column in [0] then
-  begin
-    DefaultDraw := False;
-    R := CellRect;
-    GetTextExtentPoint32W(TargetCanvas.Handle, PWideChar(Text), Length(Text), Size);
-    //NodeWidth := Size.cx + 2 * Tree.TextMargin;
-    GetTextExtentPoint32W(TargetCanvas.Handle, '...', 3, Size);
-    {EllipsisWidth := Size.cx;
-    if ((NodeWidth - 2 * Tree.TextMargin) > R.Right - R.Left) then
-         s := EllipseString(TargetCanvas.Handle, Text, R.Right - R.Left, EllipsisWidth)
-    else s := Text;}
-    {S := Text;
-
-    DrawFormat := DT_NOPREFIX or DT_VCENTER;// or DT_SINGLELINE;
-    Windows.DrawTextW(TargetCanvas.Handle, PWideChar(s), Length(s), R, DrawFormat);
-  end; }
-
-{var
-  R: TRect;
-begin
-    R := CellRect;
-    R.Top := 0;
-    R.Bottom := 0;
-    Windows.DrawText(TargetCanvas.Handle, PChar(String(Text)), Length(Text), R, DT_CALCRECT);
-
-    R.Top := ((CellRect.Bottom - CellRect.Top) - R.Bottom) div 2;
-    if R.Top < 0 then R.Top := 0;
-    Inc(R.Top, CellRect.Top);
-    R.Bottom := CellRect.Bottom;
-
-    Windows.DrawText(TargetCanvas.Handle, PChar(String(Text)), Length(Text), R, DT_END_ELLIPSIS or DT_NOPREFIX or DT_WORDBREAK or
-    DT_EDITCONTROL);  }
-
 var
   DrawRect: TRect;
   DrawFlags: Cardinal;
   DrawParams: TDrawTextParams;
+  TextEnds: integer;
+  TempText: string;
 begin
-  defaultdraw:=false;  //BUT multiline stops static text being drawn by this and the default vt method
+  defaultdraw:=false;
 
   DrawRect := CellRect;
-  DrawFlags := DT_END_ELLIPSIS or DT_NOPREFIX or DT_WORDBREAK or
-    DT_EDITCONTROL;
+  DrawFlags := DT_END_ELLIPSIS or DT_NOPREFIX {or DT_WORDBREAK} or DT_EDITCONTROL;
   DrawText(TargetCanvas.Handle, PChar(Text), -1, DrawRect, DrawFlags or DT_CALCRECT);
   DrawRect.Right := CellRect.Right;
   if DrawRect.Bottom < CellRect.Bottom then
     OffsetRect(DrawRect, 0, (CellRect.Bottom - DrawRect.Bottom) div 2)
   else
     DrawRect.Bottom := CellRect.Bottom;
+
   ZeroMemory(@DrawParams, SizeOf(DrawParams));
   DrawParams.cbSize := SizeOf(DrawParams);
-  DrawTextEx(TargetCanvas.Handle, PChar(Text), -1, DrawRect, DrawFlags, @DrawParams);
+
+  //See if there's a newline character
+  TextEnds := AnsiPos(#13#10, Text);
+  if TextEnds > 0 then
+  begin
+    //Draw the top line
+    TempText:=Copy(Text, 1, TextEnds);
+    DrawTextEx(TargetCanvas.Handle, PChar(TempText), -1, DrawRect, DrawFlags, @DrawParams);
+
+    //Draw the bottom line in bold
+    TempText:=Copy(Text, TextEnds, length(text));
+    TargetCanvas.Font.Style :=[fsBold];
+    DrawTextEx(TargetCanvas.Handle, PChar(TempText), -1, DrawRect, DrawFlags, @DrawParams);
+  end
+  else //draw normally
+  begin
+    DrawTextEx(TargetCanvas.Handle, PChar(Text), -1, DrawRect, DrawFlags, @DrawParams);
+  end;
 end;
 
 procedure TMainfrm.DrivePopupMenuHandler(Sender: TObject);
@@ -997,19 +979,19 @@ begin
     ttStatic: CellText:= '';
   end
   else
-  case texttype of
-    ttNormal:
-      if Options.ShowPartitionsAsOne and Ejector.RemovableDrives[Node.Index].HasSiblings then //Just show name not mountpoint
-        CellText:=Ejector.RemovableDrives[Node.Index].VendorId + ' ' + Ejector.RemovableDrives[Node.Index].ProductID
+  if TextType = ttNormal then
+  begin
+    if Options.ShowPartitionsAsOne and Ejector.RemovableDrives[Node.Index].HasSiblings then //Just show name not mountpoint
+      CellText:=Ejector.RemovableDrives[Node.Index].VendorId + ' ' + Ejector.RemovableDrives[Node.Index].ProductID
+    else
+    begin  //Build a string - trying to avoid orphaned newline characters - tre bug means they show up as rectangles in xp
+      if Ejector.RemovableDrives[Node.Index].VolumeLabel > '' then                   //Trim because VendorId is empty sometimes - so there ends up being a space then productid
+        CellText:='(' + Ejector.RemovableDrives[Node.Index].DriveMountPoint + ') ' + Trim( Ejector.RemovableDrives[Node.Index].VendorId + ' ' + Ejector.RemovableDrives[Node.Index].ProductID) + #13#10 + Ejector.RemovableDrives[Node.Index].VolumeLabel
       else
-      CellText:='(' + Ejector.RemovableDrives[Node.Index].DriveMountPoint + ') ' + #13#10 + Ejector.RemovableDrives[Node.Index].VendorId + ' ' + Ejector.RemovableDrives[Node.Index].ProductID;
-
-    ttStatic:
-      if Options.ShowPartitionsAsOne and Ejector.RemovableDrives[Node.Index].HasSiblings then //Dont show the label
-        CellText := ''
-      else
-        CellText:= Ejector.RemovableDrives[Node.Index].VolumeLabel;
+        CellText:='(' + Ejector.RemovableDrives[Node.Index].DriveMountPoint + ') ' + Trim( Ejector.RemovableDrives[Node.Index].VendorId + ' ' + Ejector.RemovableDrives[Node.Index].ProductID);
+    end;
   end;
+
 end;
 
 procedure TMainfrm.TreeInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -1032,15 +1014,6 @@ begin
 
   if (ssDouble in Shift) and (Button = mbRight) then
     ShellExec(0, 'open', Ejector.RemovableDrives[Tree.focusednode.Index].DriveMountPoint, '', '', SW_SHOWNORMAL);
-end;
-
-procedure TMainfrm.TreePaintText(Sender: TBaseVirtualTree;
-  const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-  TextType: TVSTTextType);
-begin
-  case TextType of
-    ttStatic: TargetCanvas.Font.Style:=[fsBold];
-  end;
 end;
 
 procedure TMainfrm.UpdateFormStrings;
