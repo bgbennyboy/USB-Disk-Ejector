@@ -847,7 +847,7 @@ object Aboutfrm: TAboutfrm
       ''
       'Credits/Thanks:'
       ''
-      'Andrea'
+      'Andrea Parker'
       ''
       'C to Pascal Converter by '
       'Ural Gunaydin'

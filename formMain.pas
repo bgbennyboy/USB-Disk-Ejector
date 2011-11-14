@@ -95,7 +95,6 @@ TODO Before Release:
 
   OTHER:
      For grouped drives show mountpoint/drive letters somehow
-
         Cant tab to the move label on main form
         Windows 2000 support is broken
 
@@ -126,7 +125,7 @@ uses
   Menus, VirtualTrees, Generics.Collections,
 
   uDiskEjectConst, uDiskEjectUtils, uDiskEjectOptions,
-  uCustomHotKeyManager, uCardReaderManager, uDriveEjector, uCommunicationManager, JvMenus;
+  uCustomHotKeyManager, uCardReaderManager, uDriveEjector, uCommunicationManager;
 
 type
   TMainfrm = class(TForm)
@@ -170,6 +169,10 @@ type
     procedure TreeDrawText(Sender: TBaseVirtualTree; TargetCanvas: TCanvas;
       Node: PVirtualNode; Column: TColumnIndex; const Text: string;
       const CellRect: TRect; var DefaultDraw: Boolean);
+    procedure TreeGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle;
+      var HintText: string);
+    procedure FormShow(Sender: TObject);
   private
     DrivePopups: array of TMenuItem;
     Procedure MinimizeClick(Sender:TObject);
@@ -223,7 +226,7 @@ begin
     Tree.Header.Font.Size:=8;
   end;
 
-  //Load strings
+   //Load strings
   UpdateFormStrings;
 
   if Options.MaxWidth >0 then
@@ -244,8 +247,6 @@ begin
   Communicator := TCommunicationManager.Create(TrayIcon1);
   Ejector:=TDriveEjector.Create;
 
-
-  Application.hintpause:=0800;
   Application.OnMinimize := MinimizeClick;
 
   HotKeys:=TCustomHotKeyManager.Create;
@@ -277,6 +278,12 @@ begin
   CardReaders.Free;
   Ejector.Free;
   Communicator.Free;
+end;
+
+procedure TMainfrm.FormShow(Sender: TObject);
+begin
+  //Delay the hints
+ Application.HintPause := 500;
 end;
 
 procedure TMainfrm.HotKeyPressed(HotKey: Cardinal; Index: Word);
@@ -927,6 +934,21 @@ begin
 
     prevNode:=TempNode;
     TempNode:=Tree.GetNext(PrevNode);
+  end;
+end;
+
+procedure TMainfrm.TreeGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle;
+  var HintText: string);
+var
+  i: integer;
+begin
+  if Ejector.Busy then exit;
+  if Ejector.RemovableDrives[Node.Index].HasSiblings then
+  begin
+    HintText := Ejector.RemovableDrives[Node.Index].DriveMountPoint;
+    for I := low(Ejector.RemovableDrives[Node.Index].SiblingIndexes) to high(Ejector.RemovableDrives[Node.Index].SiblingIndexes) do
+      HintText := HintText + #13#10 + Ejector.RemovableDrives[Ejector.RemovableDrives[Node.Index].SiblingIndexes[i]].DriveMountPoint
   end;
 end;
 

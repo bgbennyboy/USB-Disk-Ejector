@@ -26,7 +26,7 @@ unit uDiskEjectConst;
 interface
 
 const
-  str_App_Version: string             = '1.2.0 Beta 6';
+  str_App_Version: string             = '1.3.0';
   str_Ini_FileName: string            = 'USB_Disk_Eject.cfg';
   str_No_Drive: string                = 'No disks found.';
   str_Temp_Folder_Write_Error: string = 'Could not write to windows temp dir!' + #13 + 'The program will now exit';
