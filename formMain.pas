@@ -943,6 +943,9 @@ procedure TMainfrm.TreeGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode;
 var
   i: integer;
 begin
+  if Ejector = nil then exit;
+  if Ejector.DrivesCount <= 0 then exit;
+
   if Ejector.Busy then exit;
   if Ejector.RemovableDrives[Node.Index].HasSiblings then
   begin
