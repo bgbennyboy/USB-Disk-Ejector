@@ -609,7 +609,6 @@ begin
     else
     if EjectDevice(MountPoint, EjectErrorCode, ShowEjectMessage) then
     begin
-      //DeleteArrayItem(DriveIndex);  //On devices with multiple partitions only 1 item would get deleted
       FindRemovableDrives;
       result:=true;
     end;
@@ -772,7 +771,7 @@ begin
       if GetLastError = 32 then
         EjectErrorCode:=REMOVE_ERROR_DISK_IN_USE
       else
-        EjectErrorCode:=GetLastError; //REMOVE_ERROR_UNKNOWN_ERROR;
+        EjectErrorCode:=REMOVE_ERROR_UNKNOWN_ERROR;
 
       exit;
     end;
@@ -848,7 +847,7 @@ begin
     if GetLastError = 32 then
       EjectErrorCode:=REMOVE_ERROR_DISK_IN_USE
     else
-      EjectErrorCode:=GetLastError;//REMOVE_ERROR_UNKNOWN_ERROR;
+      EjectErrorCode:=REMOVE_ERROR_UNKNOWN_ERROR;
    end;
 end;
 

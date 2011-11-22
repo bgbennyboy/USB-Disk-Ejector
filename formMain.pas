@@ -518,15 +518,19 @@ begin
     if options.UseWindowsNotifications = false then  //If true then windows shows its own error messagebox
     begin
       case EjectError of
-        REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
         REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
         REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
         REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
-        REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError)
+        REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+        REMOVE_ERROR_NONE:            Communicator.DoMessage( '(' + MountPoint + ':) ' + str_Remove_Error_None + inttostr(GetLastError), bfError);
+        REMOVE_ERROR_UNKNOWN_ERROR:   //No point showing if windows error code is just 0. 0= no problems
+        begin
+          if GetLastError > 0 then    Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError)
+          else
+                                      Communicator.DoMessage( '(' + MountPoint + ':) ' + str_Remove_Error_Unknown_Error, bfError);
+        end
         else
-        if EjectError = 0 then Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError) //error code 0 means successful!
-        else
-        Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(EjectError), bfError);
+        Communicator.DoMessage( '(' + MountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError);
       end;
     end;
 

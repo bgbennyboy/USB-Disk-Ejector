@@ -120,13 +120,20 @@ begin
             if options.UseWindowsNotifications=false then //if its true then windows shows its own message
             begin
               case EjectErrorCode of
-                REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
                 REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
                 REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
                 REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
                 REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+			 	        REMOVE_ERROR_NONE:   		      Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_Remove_Error_None + inttostr(GetLastError), bfError);
+                REMOVE_ERROR_UNKNOWN_ERROR:
+                begin
+                  if GetLastError > 0 then
+                    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError)
+                  else
+                    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError)
+                end
                 else
-                Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLetter + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError);
               end;
               Sleep(4000); // Give notification time to be shown
             end;
@@ -200,13 +207,20 @@ begin
             if options.UseWindowsNotifications=false then //if its true then windows shows its own message
             begin
               case EjectErrorCode of
-                REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-                REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
-                REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
-                REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
-                REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ') ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+                REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
+                REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
+                REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
+                REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+				        REMOVE_ERROR_NONE:   		      Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_Remove_Error_None + inttostr(GetLastError), bfError);
+                REMOVE_ERROR_UNKNOWN_ERROR:
+                begin
+                  if GetLastError > 0 then
+                    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError)
+                  else
+                     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError)
+                end
                 else
-                Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveMountPoint + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError);
               end;
               Sleep(4000); // Give notification time to be shown
             end;
@@ -288,13 +302,20 @@ begin
                 if options.UseWindowsNotifications=false then //if its true then windows shows its own message
                 begin
                   case EjectErrorCode of
-                    REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-                    REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
-                    REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
-                    REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
-                    REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ') ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+                    REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
+                    REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
+                    REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
+                    REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+                    REMOVE_ERROR_NONE:   		      Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_Remove_Error_None + inttostr(GetLastError), bfError);
+                    REMOVE_ERROR_UNKNOWN_ERROR:
+                    begin
+                      if GetLastError > 0 then
+                        Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError)
+                      else
+                        Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                      end
                     else
-                    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveName + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError);
                   end;
                   Sleep(4000); // Give notification time to be shown
                 end;
@@ -375,13 +396,20 @@ begin
                 if options.UseWindowsNotifications=false then //if its true then windows shows its own message
                 begin
                   case EjectErrorCode of
-                    REMOVE_ERROR_UNKNOWN_ERROR:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
-                    REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
-                    REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
-                    REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
-                    REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ') ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+                    REMOVE_ERROR_DRIVE_NOT_FOUND: Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_DRIVE_NOT_FOUND, bfError);
+                    REMOVE_ERROR_DISK_IN_USE:     Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_DISK_IN_USE, bfError);
+                    REMOVE_ERROR_NO_CARD_MEDIA:   Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_NO_CARD_MEDIA, bfError);
+                    REMOVE_ERROR_WINAPI_ERROR:    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_WINAPI_ERROR, bfError);
+                    REMOVE_ERROR_NONE:   		      Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_Remove_Error_None + inttostr(GetLastError), bfError);
+                    REMOVE_ERROR_UNKNOWN_ERROR:
+                    begin
+                      if GetLastError > 0 then
+                        Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError)
+                      else
+                        Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                    end
                     else
-                    Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR, bfError);
+                      Communicator.DoMessage( '(' + options.CommandLine_Param_RemoveLabel + ':) ' + str_REMOVE_ERROR_UNKNOWN_ERROR_REPORT_CODE + inttostr(GetLastError), bfError);
                   end;
                   Sleep(4000); // Give notification time to be shown
                 end;
