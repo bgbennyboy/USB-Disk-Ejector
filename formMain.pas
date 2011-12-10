@@ -34,58 +34,6 @@ DO BEFORE RELEASE:
 }
 
 {
-Added since last stable release:
-  App instances - now only 1 allowed - launching second instance restores the first - only tested on vista
-  Made 'search for memory cards' enabled by default
-  DiskEjectUtils - CreateCleanupBatFileAndRun - removed legacy winexec and replaced with shellexec
-  Docking to screen corners
-  Supports mountpoints - drives mapped to folders
-  Global communications - uses balloon hints if available and enabled - else uses messagebox
-  Options dialog rewritten
-  Added audio notifications - for sound if ejections succeeds/fails
-  Notifications - if balloon hints disabled or not available displays a messagebox dialog that autocloses after 5 seconds
-  Command line switches - big changes
-  No switches for GUI Mode features - all controlled by options now
-  design change - command line options reduced - all settings inherited from options file
-    if nosave is used, they are read but not saved
-  Added /removelabel
-  Updated hotkey support with new commands
-  Fixed hotkeys still being removed in options dialog if cancel was pressed
-  Firewire support - in gui + command line
-  Autosize window - resize doesnt go behind taskbar - sizes up if necessary - always stays on screen. Smart resizing
-  Autosize option
-  Detects card readers
-  Card reader polling
-  Ejects card by default  - not the device
-  Fixed options XP font size
-  Docking - will resize correctly and stay in corners
-  Different icons - card reader/reader with card in - firewire drive
-  Double right clicking opens explorer window
-  Better notifications - for different types of removal problem
-  Notifications - when eject is successful
-  Closes explorer windows before eject - no more vista problems
-  Successful eject ballon tips added
-  Closes running apps - ask or force - NOT if app has file open from drive
-  New - no disks found icon
-  Tray - right click removal of devices
-  Removed 'website' link on main form
-  Added eject by right click menu in tray
-  Hotkeys - eject by drive name (with wildcard support), drive letter, bring to front
-  Threads - stop very rare issue where device with many partitions or card reader device supporting multiple devices - not all drives were detected
-  Card readers - specify which ones are readers in options - match by various fields
-  Option to hide card readers with no media in
-  Option to set card polling time - default is 5 seconds
-  Option to hide all card readers
-  Option to show drives with multiple partitions as one entry - with different icon to indicate this
-  Option to set max width of form - useful eg if mountpoint in a deeply nested folder
-  Fixed - problem with commandline - if drive letter called as lower case ExtractFilePath - would pass the letter as lower case
-  Fixed - EmumWindows - problem - explorer windows are now closed successfully again
-  Fixed - Ejecting mountpoint from command line - case mattered - even when doing /REMOVETHIS - now looks up the correctly cased mountpoint name
-  Fixed - quotes around params when restarting in mobile mode
-  Fixed - /REMOVELETTER not restarting in mobile mode when attempting to eject self
-  Fixed - EnumWindowAndClose and CloseAppsRunningFrom - now take into account partitions on same drive
-  Fixed - Slightly clearer error codes - show code if its unknown (and not 0)
-
 TODO Before Release:
   Update credits in readme and about form
 
@@ -258,6 +206,11 @@ begin
   Ejector.OnDrivesChanged:=OnDrivesChanged;
   Ejector.CardPolling:=Options.CardPolling;
   Ejector.CardPollingInterval := Options.CardPollingInterval;
+
+
+  Options.CardReaders := CardReaders;
+  Options.RebuildCardReaders;
+
 
   FillDriveList;
 end;
@@ -492,10 +445,7 @@ begin
   else
     Mainfrm.Constraints.MaxWidth := null;
 
-  AddCustomCardReaders(CardReaders, Ejector);
-
   FillDriveList; //Options probably changed - rather than lots of checking what option has changed just rescan no matter what
-  ResizeTree;
 end;
 
 procedure TMainfrm.GUIRemoveDrive(MountPoint: String; RemoveCard: boolean);
@@ -721,6 +671,9 @@ begin
   if Ejector.DrivesCount = 0 then exit;
 
   if Tree.SelectedCount = 0 then exit;
+
+  if Tree.VisibleCount = 0 then exit;
+
 
   //TODO - make switch for this and add it to startinmobilemode below
   //TODO - sort this out for hotkey press too

@@ -172,10 +172,6 @@ begin
 
   Options.HotKeys:=HotKeys;
   Options.RebuildHotKeys;
-
-  Options.CardReaders := CardReaders;
-  Options.RebuildCardReaders;
-  AddCustomCardReaders(CardReaders, Ejector); //Have to do this here - cant do it in Main form as it runs from FillDriveList which is called by Create() - which runs before options or anything else is created
 end;
 
 procedure TOptionsfrm.FormShow(Sender: TObject);
