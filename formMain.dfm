@@ -9,6 +9,7 @@ object Mainfrm: TMainfrm
   Constraints.MinHeight = 233
   Constraints.MinWidth = 295
   ParentFont = True
+  KeyPreview = True
   OldCreateOrder = False
   Position = poScreenCenter
   ScreenSnap = True
@@ -16,6 +17,7 @@ object Mainfrm: TMainfrm
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnKeyPress = FormKeyPress
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -43,11 +45,6 @@ object Mainfrm: TMainfrm
       OnClick = lblMoreClick
       OnMouseEnter = lblMoreMouseEnter
       OnMouseLeave = lblMoreMouseLeave
-      HotTrackFont.Charset = DEFAULT_CHARSET
-      HotTrackFont.Color = clWindowText
-      HotTrackFont.Height = -11
-      HotTrackFont.Name = 'Tahoma'
-      HotTrackFont.Style = []
     end
   end
   object Tree: TVirtualStringTree
@@ -63,7 +60,6 @@ object Mainfrm: TMainfrm
     Header.Height = 30
     Header.Options = [hoAutoResize, hoDblClickResize, hoShowImages, hoVisible]
     Header.ParentFont = True
-    Header.Style = hsXPStyle
     HintAnimation = hatFade
     HintMode = hmHintAndDefault
     Images = ImageList1
@@ -142,7 +138,7 @@ object Mainfrm: TMainfrm
     Left = 16
     Top = 112
     Bitmap = {
-      494C01010700D001600130003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010700D001700130003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000006000000001002000000000000020
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2531,7 +2527,7 @@ object Mainfrm: TMainfrm
     Left = 80
     Top = 112
     Bitmap = {
-      494C010109003802500210001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010109003802600210001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

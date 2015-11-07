@@ -1,8 +1,8 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2011 Bgbennyboy
-  Http://quick.mixnmojo.com
+  Copyright (c) 2006 - 2015 Bennyboy
+  Http://quickandeasysoftware.net
 ******************************************************
 }
 {
@@ -26,7 +26,6 @@ DO BEFORE RELEASE:
   DISABLE ReportMemoryLeaksOnShutdown in project's .dpr
   Change build configuration from debug to release
   Update readme
-  Compress with UPX
   Update version string in uDiskEjectConst
   Update version info in project
   Jedi API - change compiler def to Win2000 and up
@@ -67,7 +66,7 @@ interface
 
 uses
   Forms, Sysutils, Controls, Classes, ExtCtrls, ImgList,
-  graphics, JwaWindows, types,
+  graphics, JwaWindows, types, UiTypes, System.Contnrs,
   JvExControls, JvLabel, JvAppInst,
   JclSysInfo, JclShell, JCLStrings,
   Menus, VirtualTrees, Generics.Collections,
@@ -95,9 +94,7 @@ type
       var NodeDataSize: Integer);
     procedure TreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
-    procedure TreeGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
-      var ImageIndex: Integer);
+
     procedure TreeDblClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure TrayIcon1Click(Sender: TObject);
@@ -121,6 +118,10 @@ type
       Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle;
       var HintText: string);
     procedure FormShow(Sender: TObject);
+    procedure TreeGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
+      var ImageIndex: TImageIndex);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     DrivePopups: array of TMenuItem;
     Procedure MinimizeClick(Sender:TObject);
@@ -173,6 +174,9 @@ begin
     Tree.Header.ParentFont:=true;
     Tree.Header.Font.Size:=8;
   end;
+
+  //For detecting escape key press to minimize
+  KeyPreview := true;
 
    //Load strings
   UpdateFormStrings;
@@ -231,6 +235,13 @@ begin
   CardReaders.Free;
   Ejector.Free;
   Communicator.Free;
+end;
+
+procedure TMainfrm.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #27 then
+  if Options.MinimizeToTray then
+    Self.MinimizeClick(self);
 end;
 
 procedure TMainfrm.FormShow(Sender: TObject);
@@ -912,9 +923,10 @@ begin
   end;
 end;
 
+
 procedure TMainfrm.TreeGetImageIndex(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
-  var Ghosted: Boolean; var ImageIndex: Integer);
+  var Ghosted: Boolean; var ImageIndex: TImageIndex);
 begin
   if Ejector.Busy then exit;
 
@@ -942,7 +954,6 @@ begin
     else
       ImageIndex:=0;
   end;
-
 end;
 
 procedure TMainfrm.TreeGetNodeDataSize(Sender: TBaseVirtualTree;

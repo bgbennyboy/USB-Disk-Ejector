@@ -1,8 +1,8 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2011 Bgbennyboy
-  Http://quick.mixnmojo.com
+  Copyright (c) 2006 - 2015 Bennyboy
+  Http://quickandeasysoftware.net
 ******************************************************
 }
 {
@@ -53,6 +53,8 @@ function IsAppRunningFromThisLocation(MountPoint: string): boolean;
 function GetCaseSensitiveMountPointName(MountPoint: string;  Ejector: TDriveEjector): string;
 
 implementation
+
+{$WARN SYMBOL_PLATFORM OFF}
 
 procedure RemoveReadOnlyFileAttribute(FileName: string);
 var

@@ -1,8 +1,8 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2011 Bgbennyboy
-  Http://quick.mixnmojo.com
+  Copyright (c) 2006 - 2015 Bennyboy
+  Http://quickandeasysoftware.net
 ******************************************************
 }
 {
@@ -181,7 +181,7 @@ var
   Res: cardinal;
 begin
   //PostMessage(Handle, WM_GETTEXT, sizeof(WindowText), integer(@WindowText[0]));
-  SendMessageTimeout(Handle, WM_GETTEXT, SizeOf(WindowText), Cardinal(@WindowText[0]), SMTO_ABORTIFHUNG or SMTO_NORMAL, 500, Res);
+  windows.SendMessageTimeout(Handle, WM_GETTEXT, SizeOf(WindowText), Cardinal(@WindowText[0]), SMTO_ABORTIFHUNG or SMTO_NORMAL, 500, @Res);
 
   FoundPos:= pos(DriveString, WindowText);
   if FoundPos > 0 then
@@ -207,7 +207,7 @@ begin
   //Get the window caption
   //PostMessage(Handle, WM_GETTEXT, SizeOf(WindowName), cardinal(@WindowName[0]));
   {SendMessage sometimes never returned, PostMessage just didnt work a lot of the time, so SendMessageTimeout is the alternative}
-  SendMessageTimeout(Handle, WM_GETTEXT, SizeOf(WindowName), Cardinal(@WindowName[0]), SMTO_ABORTIFHUNG or SMTO_NORMAL, 500, Res);
+  windows.SendMessageTimeout(Handle, WM_GETTEXT, SizeOf(WindowName), Cardinal(@WindowName[0]), SMTO_ABORTIFHUNG or SMTO_NORMAL, 500, @Res);
   //Look for CabinetWClass in all windows
   WindowHandle := FindWindow('CabinetWClass', WindowName);
   if WindowHandle > 0 then //Found an explorer window
@@ -368,6 +368,9 @@ begin
 
   if length(MountPoint) > 1 then
     DriveString:=MountPoint
+  else
+  if length(MountPoint) = 0 then //If no mountpoint
+    exit
   else
   begin
     //Driveletter must be upper case

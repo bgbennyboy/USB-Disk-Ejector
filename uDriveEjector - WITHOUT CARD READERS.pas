@@ -1,8 +1,8 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2015 Bennyboy
-  Http://quickandeasysoftware.net
+  Copyright (c) 2006 - 2010 Bgbennyboy
+  Http://quick.mixnmojo.com
 ******************************************************
 }
 {
@@ -40,11 +40,9 @@ type
     ProductID: string;
     ProductRevision: string;
     IsCardReader: boolean;
-    HasSiblings: boolean;
     CardMediaPresent: boolean;
     BusType: integer;
     ParentDevInst: integer;
-    SiblingIndexes: array of integer;
   end;
 
   TDriveEjector = class
@@ -64,16 +62,13 @@ type
     function GetParentDriveDevInst(MountPoint: string; var ParentInstNum: integer): boolean;
     function GetNoDevicesWithSameParentInst(ParentDevInst: integer): integer;
     function GetNoDevicesWithSameProductId(ProductId: string): integer;
-    function CheckIfDriveHasMedia(MountPoint: string): boolean;
+    //function CheckIfDriveHasMedia(MountPoint: string): boolean;
     function GetCardPolling: boolean;
     procedure SetCardPolling(Value: boolean);
-    function GetCardPollingInterval: cardinal;
-    procedure SetCardPollingInterval(value: cardinal);
     procedure FindRemovableDrives;
     procedure ScanDrive(GUIDVolumeName: String);
 
     procedure CheckForCardReaders;
-    procedure CheckForSiblings;
     procedure OnTimer (Sender:TObject);
     procedure SetBusy(const Value: boolean);
     procedure DeleteFromDrivesArray(const Index: Cardinal);
@@ -84,11 +79,10 @@ type
     function RemoveDrive(MountPoint: string; var EjectErrorCode: integer; ShowEjectMessage: boolean = false; CardEject: boolean = false; CloseRunningApps: boolean = false; ForceRunningAppsClosure: boolean = false): boolean; overload;
     procedure RescanAllDrives;
     procedure ClearDriveList;
-    procedure SetDriveAsCardReader(Index: Integer; CardReader: boolean);
 
     property DrivesCount: integer read GetDrivesCount;
-    property OnCardMediaChanged: TNotifyEvent read FOnCardMediaChanged write FOnCardMediaChanged;
-    property CardPollingInterval: cardinal read GetCardPollingInterval write SetCardPollingInterval;
+    //property OnCardMediaChanged: TNotifyEvent read FOnCardMediaChanged write FOnCardMediaChanged;
+    property CardPollingInterval: cardinal read FPollTimerInterval write FPollTimerInterval;
     property CardPolling: boolean read GetCardPolling write SetCardPolling;
     property Busy: boolean read GetBusy write SetBusy;
     property OnDrivesChanged: TNotifyEvent read FOnDrivesChanged write FOnDrivesChanged;
@@ -109,8 +103,87 @@ implementation
 var
   fPrevWndProc: TFNWndProc = nil;
   fChangeMessageCount: integer = 0;
-  CriticalSection: TCriticalSection;
   EventsThread: TEventsThread;
+  GetVolumePathNamesForVolumeNameW: Function(VolumeName, VolumePathNames: PWideChar;
+      BufferLength: LongWord; ReturnLength: PLongWord): LongBool; StdCall;
+
+
+{--------------------------Windows 2000 workaround-----------------------------}
+//This workaround by htmisu
+//http://www.delphipraxis.net/topic89088.html
+Function _GetVolumePathNamesForVolumeNameW(VolumeName, VolumePathNames: PWideChar; BufferLength: LongWord; ReturnLength: PLongWord): LongBool; StdCall;
+Var
+  LogicalDriveStrings, SearchBuffer, ResultS: WideString;
+  ResultBuffer: Array[0..MAX_PATH-1] of WideChar;
+
+  Procedure SearchRecursiv(Const SearchBuffer2: WideString);
+  Var
+    SearchHandle: THandle;
+    SearchBuffer3: WideString;
+
+  Begin
+    SearchHandle := FindFirstVolumeMountPointW(@ResultBuffer, @ResultBuffer, MAX_PATH);
+    If SearchHandle = INVALID_HANDLE_VALUE Then Exit;
+    Repeat
+      SearchBuffer3 := SearchBuffer2 + ResultBuffer;
+      If GetVolumeNameForVolumeMountPointW(PWideChar(SearchBuffer3), @ResultBuffer, MAX_PATH) Then
+      Begin
+        If CompareStringW(LOCALE_USER_DEFAULT, NORM_IGNORECASE, VolumeName, -1, @ResultBuffer, -1) = 2 Then
+          ResultS := ResultS + Copy(SearchBuffer3, 5, MAX_PATH) + #0;
+          SearchRecursiv(SearchBuffer3);
+      End;
+    Until not FindNextVolumeMountPointW(SearchHandle, @ResultBuffer, MAX_PATH);
+
+    FindVolumeMountPointClose(SearchHandle);
+  End;
+
+  Begin
+    ResultS := '';
+    SetLength(LogicalDriveStrings, GetLogicalDriveStringsW(0, nil));
+    GetLogicalDriveStringsW(255, @LogicalDriveStrings[1]);
+    LogicalDriveStrings := Trim(LogicalDriveStrings);
+    While LogicalDriveStrings <> '' do
+    Begin
+      SearchBuffer := '\\.\' + PWideChar(LogicalDriveStrings);
+      System.Delete(LogicalDriveStrings, 1, Length(SearchBuffer) - 4);
+      LogicalDriveStrings := TrimLeft(LogicalDriveStrings);
+      If (SearchBuffer[5] <= 'B') and (SearchBuffer[6] = ':') Then
+        Continue;
+      If GetVolumeNameForVolumeMountPointW(PWideChar(SearchBuffer), @ResultBuffer, MAX_PATH) Then
+      Begin
+        If CompareStringW(LOCALE_USER_DEFAULT, NORM_IGNORECASE, VolumeName, -1, @ResultBuffer, -1) = 2 Then
+          ResultS := ResultS + Copy(SearchBuffer, 5, MAX_PATH) + #0;
+        SearchRecursiv(SearchBuffer);
+      End;
+    End;
+
+    ResultS := ResultS + #0;
+    If (BufferLength >= LongWord(Length(ResultS))) and (VolumePathNames <> nil) Then
+    Begin
+      Move(ResultS[1], VolumePathNames^, 2*Length(ResultS));
+      If ReturnLength <> nil Then
+        ReturnLength^ := Length(ResultS);
+      Result := True;
+    End
+    Else
+    If (BufferLength = 0) and (VolumePathNames = nil) Then
+    Begin
+      If ReturnLength <> nil Then
+        ReturnLength^ := Length(ResultS);
+      Result := True;
+    End
+    Else
+    Begin
+      If VolumePathNames <> nil Then
+        VolumePathNames^ := #0;
+      If ReturnLength <> nil Then
+        ReturnLength^ := 1;
+
+       Result := False;
+    End;
+  End;
+{-----------------------------------------------------------------------------}
+
 
 {------------------------Hook events in dummy window--------------------------}
 function UsbWndProc(hWnd: HWND; Msg: UINT; wParam, lParam: Longint): Longint; stdcall;
@@ -122,9 +195,7 @@ begin
       (PDevBroadcastHeader(lParam).dbcd_devicetype = DBT_DEVTYP_VOLUME)) or
       (wParam = DBT_DEVICEREMOVECOMPLETE)) then
     begin
-      EnterCriticalSection(CriticalSection);
       inc(fChangeMessageCount);
-      LeaveCriticalSection(CriticalSection);
       if EventsThread.Suspended then EventsThread.Resume;
     end;
 end;
@@ -147,9 +218,7 @@ begin
     if (fChangeMessageCount > 0) and (fEjector.Busy = false) then
     begin
       sleep(500);  //gives extra time for devices with multi volumes/partitions - sometimes theres only 1 message but it takes a moment for windows to mount both partitions
-      EnterCriticalSection(CriticalSection);
       fChangeMessageCount:=0; //set it back to 0 because we're about to scan
-      LeaveCriticalSection(CriticalSection);
       fEjector.RescanAllDrives;
       //messagebeep(0);
     end
@@ -178,8 +247,6 @@ begin
     SetWindowLong(Application.Handle, GWL_WNDPROC, LongInt(@UsbWndProc));
   end;
 
-  InitializeCriticalSection(CriticalSection);
-
   fBusy := false;
   //Create a thread to keep polling fChangeMessageCount
   EventsThread:=TEventsThread.Create(self);
@@ -193,8 +260,6 @@ begin
   EventsThread.Terminate;
   if EventsThread.Suspended then EventsThread.Resume;
   EventsThread.Free;
-
-  DeleteCriticalSection(CriticalSection);
 
   PollTimer.free;
   SetLength(RemovableDrives, 0);
@@ -227,6 +292,7 @@ procedure TDriveEjector.FindRemovableDrives;
 var
   FindRec: cardinal;
   VolumeUniqueName: array[0..MAX_PATH] of Char;
+  i: integer;
 begin
   SetBusy(true);
   SetLength(RemovableDrives, 0);
@@ -246,16 +312,14 @@ begin
   //Finally check if any are card readers
   CheckForCardReaders;
 
-  //Check if it has siblings (multiple partitions but 1 drive)
-  CheckForSiblings;
 
   {--------------------------------------------------------------------------------------}
   //HACK - delete card readers
-  {for i := DrivesCount - 1 downto 0 do
+  for i := DrivesCount - 1 downto 0 do
   begin
     if RemovableDrives[i].IsCardReader then
       DeleteFromDrivesArray(i);
-  end;}
+  end;
   {--------------------------------------------------------------------------------------}
 
 
@@ -349,7 +413,7 @@ begin
     //outputdebugstring(pansichar(inttostr(getlasterror)));
 
     Status:=GetVolumePathNamesForVolumeNameW(PChar(GUIDVolumeName), DriveBuf,
-                                            MAX_PATH, ReturnLength);
+                                            MAX_PATH, @ReturnLength);
     if not Status then exit; //getlasterror;
     //outputdebugstring(pansichar(inttostr(getlasterror)));
 
@@ -373,33 +437,30 @@ begin
     if DeviceDescriptor.VendorIdOffset <> 0 then
     begin
       PCh := @PCharArray(@DeviceDescriptor)^[DeviceDescriptor.VendorIdOffset];
-      RemovableDrives[high(RemovableDrives)].VendorId := Trim(String(Pch));
+      RemovableDrives[high(RemovableDrives)].VendorId := Trim(Pch);
     end;
 
     //Product Id
     if DeviceDescriptor.ProductIdOffset <> 0 then
     begin
       PCh := @PCharArray(@DeviceDescriptor)^[DeviceDescriptor.ProductIdOffset];
-      RemovableDrives[high(RemovableDrives)].ProductID := Trim(String(PCh));
+      RemovableDrives[high(RemovableDrives)].ProductID := Trim(PCh);
     end;
 
     //Product Revision
     if DeviceDescriptor.ProductRevisionOffset <> 0 then
     begin
       PCh := @PCharArray(@DeviceDescriptor)^[DeviceDescriptor.ProductRevisionOffset];
-      RemovableDrives[high(RemovableDrives)].ProductRevision := Trim(String(PCh));
+      RemovableDrives[high(RemovableDrives)].ProductRevision := Trim(PCh);
     end;
 
     //Is Card Reader   //This is checked and changed later
     RemovableDrives[high(RemovableDrives)].IsCardReader := false;
 
-    //Has siblings  //This is checked and changed later
-    RemovableDrives[high(RemovableDrives)].HasSiblings := false;
-
     //Does Card Reader have media in it?
-    if CheckIfDriveHasMedia(DriveMountPoint) then
+    {if CheckIfDriveHasMedia(DriveMountPoint) then
       RemovableDrives[high(RemovableDrives)].CardMediaPresent:=true
-    else
+    else}
       RemovableDrives[high(RemovableDrives)].CardMediaPresent:=false;
 
     //Bus Type
@@ -424,11 +485,6 @@ begin
   result:=fPolling;
 end;
 
-function TDriveEjector.GetCardPollingInterval: cardinal;
-begin
-  result := FPollTimerInterval;
-end;
-
 procedure TDriveEjector.SetBusy(const Value: boolean);
 begin
   fBusy := Value;
@@ -438,17 +494,6 @@ procedure TDriveEjector.SetCardPolling(Value: boolean);
 begin
   fPolling:=Value;
   PollTimer.Enabled:=fPolling;
-end;
-
-procedure TDriveEjector.SetCardPollingInterval(value: cardinal);
-begin
-  FPollTimerInterval := Value;
-  PollTimer.Interval:=fPollTimerInterval;
-end;
-
-procedure TDriveEjector.SetDriveAsCardReader(Index: Integer; CardReader: boolean);
-begin
-  RemovableDrives[Index].IsCardReader := CardReader;
 end;
 
 function TDriveEjector.GetDrivesCount: integer;
@@ -491,27 +536,9 @@ begin
   begin
     //First try and close explorer windows
     EnumWindows(@EnumWindowsAndCloseFunc, LParam(MountPoint));
-
-    //Then close windows for other drives if its a partition
-    if RemovableDrives[DriveIndex].HasSiblings then
-      for I := low(RemovableDrives[DriveIndex].SiblingIndexes) to high(RemovableDrives[DriveIndex].SiblingIndexes) do
-      begin
-        EnumWindows(@EnumWindowsAndCloseFunc, LParam( RemovableDrives[RemovableDrives[DriveIndex].SiblingIndexes[i]].DriveMountPoint ));
-      end;
-
-
     //Then try and close any programs that might be running from the drive
     if CloseRunningApps then
-    begin
       CloseAppsRunningFrom(MountPoint, ForceRunningAppsClosure);
-
-      //Then close for other drives if its a partition
-      if RemovableDrives[DriveIndex].HasSiblings then
-      for I := low(RemovableDrives[DriveIndex].SiblingIndexes) to high(RemovableDrives[DriveIndex].SiblingIndexes) do
-      begin
-        CloseAppsRunningFrom(RemovableDrives[RemovableDrives[DriveIndex].SiblingIndexes[i]].DriveMountPoint, ForceRunningAppsClosure);
-      end;
-    end;
 
 
     //CHECK - stop card style eject if device isnt a card
@@ -522,13 +549,14 @@ begin
     begin
       if EjectCard(MountPoint, EjectErrorCode) then
       begin
-        RemovableDrives[DriveIndex].CardMediaPresent:=false;
+        RemovableDrives[i].CardMediaPresent:=false;
         result:=true
       end;
     end
     else
     if EjectDevice(MountPoint, EjectErrorCode, ShowEjectMessage) then
     begin
+      //DeleteArrayItem(DriveIndex);  //On devices with multiple partitions only 1 item would get deleted
       FindRemovableDrives;
       result:=true;
     end;
@@ -564,69 +592,29 @@ begin
   end;
 end;
 
-procedure TDriveEjector.CheckForSiblings;
-var
-  i, j: integer;
-begin
-  {for I := 0 to DrivesCount - 1 do
-  begin
-    if GetNoDevicesWithSameParentInst(RemovableDrives[i].ParentDevInst) > 0 then
-      if GetNoDevicesWithSameProductID(RemovableDrives[i].ProductId) > 0 then //Hard drive partitions
-        RemovableDrives[i].HasSiblings := true
-      else
-        RemovableDrives[i].HasSiblings := false;
-  end;}
-
-  for I := 0 to DrivesCount - 1 do
-    for J := 0 to DrivesCount - 1 do
-    begin
-      if I = J then continue; //Same drive
-      if RemovableDrives[i].ParentDevInst = RemovableDrives[j].ParentDevInst then
-        if RemovableDrives[i].ProductId = RemovableDrives[j].ProductId then
-        begin
-          RemovableDrives[i].HasSiblings := true;
-          SetLength(RemovableDrives[i].SiblingIndexes, length(RemovableDrives[i].SiblingIndexes) + 1);
-          RemovableDrives[i].SiblingIndexes[High(RemovableDrives[i].SiblingIndexes)] := j;
-        end
-        else
-          RemovableDrives[i].HasSiblings := false;
-    end;
-end;
-
-function TDriveEjector.CheckIfDriveHasMedia(MountPoint: string): boolean;
+{function TDriveEjector.CheckIfDriveHasMedia(MountPoint: string): boolean;
 var
   Returned, DriveHandle: cardinal;
-  VolumeName: array[0..MAX_PATH-1] of Char;
 begin
   result:=false;
-
-  GetVolumeNameForVolumeMountPoint(pchar(MountPoint), VolumeName, MAX_PATH);
-
-                            //GENERIC_READ or GENERIC_WRITE
-  DriveHandle := CreateFile(PChar(ExcludeTrailingPathDelimiter( VolumeName )),
-                          FILE_READ_ATTRIBUTES,
-                          FILE_SHARE_READ or FILE_SHARE_WRITE, nil, OPEN_EXISTING, 0, 0);
+                                                               //GENERIC_READ or GENERIC_WRITE
+  DriveHandle := CreateFile(PChar('\\.\' + MountPoint + ':'), FILE_SHARE_READ or FILE_SHARE_WRITE, 0, nil, OPEN_EXISTING, 0, 0);
   try
-    if DeviceIoControl(DriveHandle, IOCTL_STORAGE_CHECK_VERIFY2, nil, 0, nil, 0, @Returned, nil) then
+    if DeviceIoControl(DriveHandle, IOCTL_STORAGE_CHECK_VERIFY, nil, 0, nil, 0, @Returned, nil) then
       result:=true; //Card is in reader
 
   finally
     CloseHandle(Drivehandle);
   end;
-end;
+end;}
 
 function TDriveEjector.EjectCard(MountPoint: string; var EjectErrorCode: integer): boolean;
 var
   Returned, DriveHandle: cardinal;
-  VolumeName: array[0..MAX_PATH-1] of Char;
 begin
   result:=false;
-
-  GetVolumeNameForVolumeMountPoint(pchar(MountPoint), VolumeName, MAX_PATH);
-
-  DriveHandle := CreateFile(PChar(ExcludeTrailingPathDelimiter( VolumeName )),
-                          GENERIC_READ or GENERIC_WRITE,
-                          FILE_SHARE_READ or FILE_SHARE_WRITE,  nil, OPEN_EXISTING, 0, 0);
+                                                                {GENERIC_READ or GENERIC_WRITE}
+  DriveHandle := CreateFile(PChar('\\.\' + MountPoint + ':'), FILE_SHARE_READ or FILE_SHARE_WRITE, 0, nil, OPEN_EXISTING, 0, 0);
   try
     if DriveHandle = INVALID_HANDLE_VALUE then
     begin
@@ -638,7 +626,7 @@ begin
       exit;
     end;
 
-    if DeviceIoControl(DriveHandle, IOCTL_STORAGE_CHECK_VERIFY2, nil, 0, nil, 0, @Returned, nil) = false then
+    if DeviceIoControl(DriveHandle, IOCTL_STORAGE_CHECK_VERIFY, nil, 0, nil, 0, @Returned, nil) = false then
     begin
       EjectErrorCode:=REMOVE_ERROR_NO_CARD_MEDIA;
       exit; //No card in reader
@@ -764,10 +752,10 @@ begin
 
    if result=false then
    begin
-    if GetLastError = 32 then
+    //if GetLastError = 32 then
       EjectErrorCode:=REMOVE_ERROR_DISK_IN_USE
-    else
-      EjectErrorCode:=REMOVE_ERROR_UNKNOWN_ERROR;
+    //else
+   //   EjectErrorCode:=REMOVE_ERROR_UNKNOWN_ERROR;
    end;
 end;
 
@@ -984,34 +972,36 @@ var
 begin
   //sysutils.Beep;
   if GetDrivesCount = 0 then exit;
-  if fPolling = false then exit;
 
-
-  for I := 0 to GetDrivesCount - 1 do
+  {for I := 0 to GetDrivesCount - 1 do
   begin
     if RemovableDrives[i].IsCardReader then
     begin
       if CheckIfDriveHasMedia(RemovableDrives[i].DriveMountPoint) then
       begin
         if RemovableDrives[i].CardMediaPresent=false then //Has changed - generate event
-        begin
-          RemovableDrives[i].CardMediaPresent:=true;
           if assigned(foncardmediachanged) then
             foncardmediachanged(nil);
-        end;
+
+        RemovableDrives[i].CardMediaPresent:=true
       end
       else
       begin
         if RemovableDrives[i].CardMediaPresent=true then  //Has changed - generate event
-        begin
-          RemovableDrives[i].CardMediaPresent:=false;
           if assigned(foncardmediachanged) then
             foncardmediachanged(nil);
-        end;
+
+        RemovableDrives[i].CardMediaPresent:=false
       end;
     end;
-  end;
+  end;}
 
 end;
 
-end.
+Initialization
+  //Windows 2000 workaround
+  GetVolumePathNamesForVolumeNameW := GetProcAddress(GetModuleHandle('kernel32.dll'), 'GetVolumePathNamesForVolumeNameW');
+  If @GetVolumePathNamesForVolumeNameW = nil Then
+    GetVolumePathNamesForVolumeNameW := @_GetVolumePathNamesForVolumeNameW;
+
+End.

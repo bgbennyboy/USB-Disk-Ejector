@@ -77,7 +77,7 @@ object Optionsfrm: TOptionsfrm
       Top = 1
       Width = 411
       Height = 307
-      ActivePage = TabSheet2
+      ActivePage = TabSheet4
       Align = alClient
       Style = tsButtons
       TabOrder = 0
@@ -173,6 +173,10 @@ object Optionsfrm: TOptionsfrm
       object TabSheet2: TTabSheet
         Caption = 'TabSheet2'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object ScrollBox2: TScrollBox
           Left = 0
           Top = 0
@@ -267,6 +271,7 @@ object Optionsfrm: TOptionsfrm
               ParentShowHint = False
               ShowHint = True
               TabOrder = 0
+              Text = ''
               OnKeyPress = editMaxWindowWidthKeyPress
             end
             object chkBoxAutosizeWindow: TCheckBox
@@ -402,6 +407,7 @@ object Optionsfrm: TOptionsfrm
             ParentShowHint = False
             ShowHint = True
             TabOrder = 2
+            Text = ''
             OnKeyPress = editMaxWindowWidthKeyPress
           end
           object chkBoxShowCardReaders: TCheckBox
@@ -479,10 +485,6 @@ object Optionsfrm: TOptionsfrm
       object TabSheet4: TTabSheet
         Caption = 'TabSheet4'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object ScrollBox4: TScrollBox
           Left = 0
           Top = 0
@@ -504,7 +506,7 @@ object Optionsfrm: TOptionsfrm
             TabOrder = 0
             object comboBoxHotKeyAction: TComboBox
               Left = 10
-              Top = 23
+              Top = 47
               Width = 188
               Height = 21
               Style = csDropDownList
@@ -521,7 +523,7 @@ object Optionsfrm: TOptionsfrm
             end
             object hotKey1: TJvHotKey
               Left = 221
-              Top = 23
+              Top = 47
               Width = 164
               Height = 21
               HotKey = 112
@@ -532,7 +534,7 @@ object Optionsfrm: TOptionsfrm
             end
             object btnAddHotKey: TBitBtn
               Left = 221
-              Top = 57
+              Top = 81
               Width = 75
               Height = 25
               Caption = 'Add'
@@ -541,7 +543,7 @@ object Optionsfrm: TOptionsfrm
             end
             object btnRemoveHotKey: TBitBtn
               Left = 310
-              Top = 57
+              Top = 81
               Width = 75
               Height = 25
               Caption = 'Remove'
@@ -551,9 +553,9 @@ object Optionsfrm: TOptionsfrm
             end
             object listViewHotkeys: TListView
               Left = 10
-              Top = 86
+              Top = 110
               Width = 375
-              Height = 179
+              Height = 155
               Columns = <
                 item
                   Caption = 'Action'
@@ -579,11 +581,19 @@ object Optionsfrm: TOptionsfrm
             end
             object comboboxHotKeyParams: TComboBox
               Left = 10
-              Top = 58
+              Top = 82
               Width = 188
               Height = 21
               TabOrder = 2
               Visible = False
+            end
+            object chkboxMinimizeOnEscape: TCheckBox
+              Left = 10
+              Top = 14
+              Width = 375
+              Height = 27
+              Caption = 'Minimize program when escape key pressed'
+              TabOrder = 6
             end
           end
         end
@@ -637,7 +647,7 @@ object Optionsfrm: TOptionsfrm
     Left = 72
     Top = 288
     Bitmap = {
-      494C01010700E803600430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010700E803700430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000006000000001002000000000000020
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

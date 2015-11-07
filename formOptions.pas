@@ -1,8 +1,8 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2011 Bgbennyboy
-  Http://quick.mixnmojo.com
+  Copyright (c) 2006 - 2015 Bennyboy
+  Http://quickandeasysoftware.net
 ******************************************************
 }
 {
@@ -28,7 +28,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, Buttons, ExtCtrls, CategoryButtons, ImgList,
-  JvExComCtrls, JvHotKey, Character, JvExStdCtrls, JvEdit,
+  System.Contnrs, JvExComCtrls, JvHotKey, Character, JvExStdCtrls, JvEdit,
 
   uDiskEjectOptions, uCustomHotKeyManager, uDiskEjectConst, uDiskEjectUtils;
 
@@ -93,6 +93,7 @@ type
     editMaxWindowWidth: TJvEdit;
     Label4: TLabel;
     chkBoxAutosizeWindow: TCheckBox;
+    chkboxMinimizeOnEscape: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -195,6 +196,7 @@ begin
     chkBoxHideCardReaders.Checked       := HideCardReadersWithNoMedia;
     chkBoxShowCardReaders.Checked       := ShowCardReaders;
     chkboxShowPartitionsAsOne.Checked   := ShowPartitionsAsOne;
+    chkboxMinimizeOnEscape.Checked      := MinimizeWithEsc;
 
     editSearchFrequency.Text            := inttostr(CardPollingInterval);
     editSearchFrequency.Enabled         := chkboxCardPolling.Checked;
@@ -246,7 +248,7 @@ end;
 
 procedure TOptionsfrm.editMaxWindowWidthKeyPress(Sender: TObject; var Key: Char);
 begin
-  if not (TCharacter.IsDigit(Key)) and not (CharInSet(Key, [#8])) then
+  if not (Key.IsDigit) and not (CharInSet(Key, [#8])) then
     Key := #0;
 end;
 
@@ -605,6 +607,7 @@ begin
     ShowCardReaders             := chkBoxShowCardReaders.Checked;
     HideCardReadersWithNoMedia  := chkBoxHideCardReaders.Checked;
     ShowPartitionsAsOne         := chkboxShowPartitionsAsOne.Checked;
+    MinimizeWithEsc             := chkboxMinimizeOnEscape.Checked;
     AfterEject                  := radiogroupAfterEject.ItemIndex;
     SnapTo                      := comboboxDockTo.ItemIndex;
 

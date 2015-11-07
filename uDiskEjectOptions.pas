@@ -1,8 +1,8 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2011 Bgbennyboy
-  Http://quick.mixnmojo.com
+  Copyright (c) 2006 - 2015 Bennyboy
+  Http://quickandeasysoftware.net
 ******************************************************
 }
 {
@@ -31,7 +31,7 @@ unit uDiskEjectOptions;
 
 interface
 uses
-  Classes, Sysutils, forms, inifiles, JCLFileUtils, JCLSysInfo, JCLStrings,
+  Classes, Sysutils, forms, inifiles, System.Contnrs, JCLFileUtils, JCLSysInfo, JCLStrings,
   uDiskEjectConst, uCustomHotKeyManager, uCardReaderManager,
 
   dialogs;
@@ -65,6 +65,7 @@ type
     fHideCardReadersWithNoMedia: boolean;
     fCloseRunningApps_Ask: boolean;
     fCloseRunningApps_Force: boolean;
+    fMinimizeWithEsc: boolean;
     fSnapTo: integer;
     fMaxWidth: integer;
     fShowPartitionsAsOne: boolean;
@@ -133,6 +134,7 @@ type
     property CloseRunningApps_Force     : boolean   read  fCloseRunningApps_Force     write fCloseRunningApps_Force;
     property AudioNotifications         : boolean   read  fAudioNotifications         write fAudioNotifications;
     property HideCardReadersWithNoMedia : boolean   read  fHideCardReadersWithNoMedia write fHideCardReadersWithNoMedia;
+    property MinimizeWithEsc            : boolean   read  fMinimizeWithEsc            write fMinimizeWithEsc;
     property WindowHeight               : integer   read  fWindowHeight               write fWindowHeight;
     property WindowWidth                : integer   read  fWindowWidth                write fWindowWidth;
     property WindowLeftPos              : integer   read  fWindowLeftPos              write fWindowLeftPos;
@@ -195,6 +197,7 @@ begin
     fShowPartitionsAsOne:=        fIniFile.ReadBool('Preferences', 'ShowPartitionsAsOne', false);
     fHideCardReadersWithNoMedia:= fIniFile.ReadBool('Preferences', 'HideCardReadersWithNoMedia', true);
     fShowCardReaders:=            fIniFile.ReadBool('Preferences', 'ShowCardReaders', true);
+    fMinimizeWithEsc:=            fIniFile.ReadBool('Preferences', 'MinimizeWithEsc', true);
 
     fAfterEject:=                 fIniFile.ReadInteger('Preferences', 'AfterEject', 0);
     fCardPollingInterval:=        fIniFile.ReadInteger('Preferences', 'CardPollingInterval', 5000);
@@ -234,6 +237,7 @@ begin
   fIniFile.WriteBool('Preferences', 'ShowPartitionsAsOne',        fShowPartitionsAsOne);
   fIniFile.WriteBool('Preferences', 'HideCardReadersWithNoMedia', fHideCardReadersWithNoMedia);
   fIniFile.WriteBool('Preferences', 'ShowCardReaders',            fShowCardReaders);
+  fIniFile.WriteBool('Preferences', 'MinimizeWithEsc',            fMinimizeWithEsc);
 
   fIniFile.WriteInteger('Preferences', 'AfterEject',              fAfterEject);
   fIniFile.WriteInteger('Preferences', 'CardPollingInterval',     fCardPollingInterval);

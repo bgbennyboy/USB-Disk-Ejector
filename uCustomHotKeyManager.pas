@@ -1,8 +1,8 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2011 Bgbennyboy
-  Http://quick.mixnmojo.com
+  Copyright (c) 2006 - 2015 Bennyboy
+  Http://quickandeasysoftware.net
 ******************************************************
 }
 {
@@ -36,7 +36,7 @@ unit uCustomHotKeyManager;
 interface
 
 uses
-  SysUtils, Contnrs, HotKeyManager;
+  SysUtils, Contnrs, System.Classes, HotKeyManager;
 
 type
   TCustomHotKeyAction = (

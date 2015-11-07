@@ -1,8 +1,8 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2011 Bgbennyboy
-  Http://quick.mixnmojo.com
+  Copyright (c) 2006 - 2015 Bennyboy
+  Http://quickandeasysoftware.net
 ******************************************************
 }
 {
@@ -78,7 +78,7 @@ end;
 
 procedure TAboutfrm.Image1Click(Sender: TObject);
 begin
-  shellexec(0, 'open', 'Http://quick.mixnmojo.com','', '', SW_SHOWNORMAL);
+  shellexec(0, 'open', 'http://quickandeasysoftware.net','', '', SW_SHOWNORMAL);
 end;
 
 end.
