@@ -227,6 +227,7 @@ procedure TDriveEjector.FindRemovableDrives;
 var
   FindRec: cardinal;
   VolumeUniqueName: array[0..MAX_PATH] of Char;
+  i: integer;
 begin
   SetBusy(true);
   SetLength(RemovableDrives, 0);
@@ -257,6 +258,15 @@ begin
       DeleteFromDrivesArray(i);
   end;}
   {--------------------------------------------------------------------------------------}
+
+
+  //NEW remove drives that have no pointpoint at all - they dont show up in the normal windows eject dialog and we cant eject them here - so dont show them.
+  for i := DrivesCount - 1 downto 0 do
+  begin
+    if RemovableDrives[i].DriveMountPoint = '' then
+      if RemovableDrives[i].IsCardReader = false then
+        DeleteFromDrivesArray(i);
+  end;
 
 
   if assigned(FOnDrivesChanged) then
