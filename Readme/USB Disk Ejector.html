@@ -217,9 +217,9 @@ img.centred {
   
   <div class="logo">
     <h1>USB Disk Ejector<br/>
-    By Bgbennyboy<br/>
-   Version 1.3.0.3<br/>
-   Http://quick.mixnmojo.com</h1>
+    By Bennyboy<br/>
+   Version 1.3.0.4<br/>
+   Http://quickandeasysoftware.net</h1>
   </div>
   <div class="clearfloat"></div>
 </div>
@@ -228,39 +228,24 @@ img.centred {
   <div class="content">
 	<h1>New in this version</h1>
 	<p>
-	Fixed rare bug that could prevent custom card readers from being identified as a card reader when the program was first run.
-	</p>
-	<h1>New in version 1.3.0.1 and 1.3.0.2</h1>
-	<p>
-	Fixed tooltip bug that slipped through testing - if you hovered the mouse over the program when there was no drives inserted it would create an error. Many thanks to Bruce Lightfoot for spotting this.<br/><br/>
-	Improved error reporting, if a disk cant be ejected now - it should give a more appropriate response. (If a disk cant be ejected 99% of the time the reason is that a file or process is using the disk).
-	</p>	
+	Added option to use the escape key to minimize the window.<br></br>
+	Fixed problem with some rare drives that dont have a mountpoint. These cant be ejected in the usual way and indeed dont show up in windows' own safely remove dialog. Drives like these are no longer shown in the program.<br></br>
+	Stopped compressing with UPX. The exe is now 4MB in size instead of 1.5MB but it means that it uses half the memory which is a worthwhile tradeoff.
+	</p>  
 	
-    <h1>New in version 1.3</h1>
-    <p>There's been a huge number of changes since the last   stable version. Most elements of the program have been rewritten. Many bugs have been fixed and there are some significant new features. You can see the<a href="#FullChangelog"> full list</a> of changes at <a href="#FullChangelog">the end.</a> The   most important ones are listed below:</p>
-    <ul>
-      <li>Full card reader and memory card support. You can now eject media, show/hide card readers, hide empty card readers and even define drives as card readers.</li>
-      <li>Mountpoint support. All detection and ejecting is done using mountpoints rather than drive letters, this means that drives mounted in a folder <a href="http://lifehacker.com/373389/mount-usb-drives-in-assigned-folders-to-keep-them-straight">like this</a> are supported.</li>
-      <li>Options window added - options can now be easily set and saved. There are now many settings that can be configured and customised.</li>
-      <li>Much better notifications:
-        <ul>
-          <li>Uses balloon hints in the taskbar for notifications instead of a messagebox</li>
-          <li>Much better detection and explanation of the reasons for a failed eject</li>
-          <li>Now notifies (via a balloon hint) when an eject is successful</li>
-        </ul>
-      </li>
-      <li>Support for Firewire disks. </li>
-      <li>Big changes to drive detection and ejection code - stops the  freezing that could sometimes happen with the old version when trying to eject some types of drive.</li>
-    </ul>
+	
 <br />
     <h1>What is USB Disk Ejector?</h1>
     <p>A program that allows you to quickly remove drives in Windows. It can eject USB disks, Firewire disks and memory cards. It is a quick, flexible, portable alternative to using Windows' &quot;Safely Remove Hardware&quot; dialog.</p>
-<p>It will work on any version of Windows from XP onwards,  that includes:</p>
+<p>It will work on any version of Windows from XP onwards, that includes:</p>
     <ul>
-      <li>Windows XP (32 and 64 bit)</li>
-      <li>Windows Vista (32 and 64 bit)</li>
-      <li>Windows 7 (32 and 64 bit)</li>
-      <li>Windows Server 2003 and 2008 are untested but should work.</li>
+      <li>Windows XP</li>
+      <li>Windows Vista</li>
+      <li>Windows 7</li>
+	  <li>Windows 8</li>
+	  <li>Windows 10</li>
+      <li>Windows Server versions from 2003 onwards are untested by me but have been reported to work.</li>
+	  <li>32 bit and 64 bit versions of all the above</li>
     </ul><br/>
 <h2>What makes this so useful?</h2>
 <p><strong>It is quick.</strong> Rather than clicking through the &quot;Safely Remove Hardware&quot; dialog you can very quickly remove drives or card media. You can even create shortcuts or hotkeys to eject a drive.</p>
@@ -278,8 +263,8 @@ img.centred {
     <p>So you could setup a desktop shortcut or bat file to eject a drive. Or if you use a menu such as PStart or the Portable Apps launcher you could use the command line switches so that with one click the menu will exit, the program will run  and the drive will be ejected. See the '<a href="#CommandLine">Command Line</a>'  section below for more information. </p>
 <p><strong>It can eject disks when Vista  cant.</strong> In Vista, disks often cant be ejected because they have an open explorer window. Other versions of Windows will close any explorer windows belonging to a disk but Vista often doesnt - so USB Disk Ejector closes does it before ejecting.</p>
     <p><strong>It can eject disks when Windows sometimes cant.</strong> If any applications are running from a disk then Windows wont be able to eject it. USB Disk Ejector can detect and auto-close any applications running from the disk before ejecting. Please note this closes applications that were launched<strong> from</strong> the  disk not applications that have opened a file <strong>on</strong> the disk. See the limitations section further down for more information.</p>
-<p><strong>It is small.</strong> Less than 1MB.</p>
-<p><strong>It is open source.</strong> All source code can be found on my website.</p><br/>
+<p><strong>It is small.</strong> Less than 1.5MB (when UPX compressed).</p>
+<p><strong>It is open source.</strong> All source code can be found on my Github.</p><br/>
   
   <h2>What do I need to use this?</h2>
   <p>A  removable USB or Firewire device such as a  flash drive, digital camera or external hard drive. Any USB or Firewire device that shows as a disk should be removable by this.</p>
@@ -335,8 +320,8 @@ img.centred {
     </ul>
     <p>The command line switches could be used to eject a drive from the command prompt, a bat file, a desktop shortcut or as part of a script or menu.</p>
    <br/>
-   <h1>Upgrading From Previous Versions</h1>
-   <p>If you are upgrading from a previous version of USB Disk Eject be aware that some command line switches have been removed:</p>
+   <h1>Upgrading From Previous Versions (before v1.3)</h1>
+   <p>If you are upgrading from a version before 1.3 then be aware that some command line switches have been removed:</p>
    <ul>
      <li>/SILENT </li>
      <li>/SHOWEJECT </li>
@@ -346,11 +331,11 @@ img.centred {
    <p>These settings are now set in the options menu. If you are using the program from the command line and USB_Disk_Eject.cfg is found in the same folder as the program then it will read and use settings from it. If its not found then the default settings will be used.</p>
    <p>Using these switches with this new version of the program wont cause any problems - they will just be ignored.</p>
 <h1>Limitations/Bugs</h1>
-   <p>Please <a href="http://quick.mixnmojo.com/contact">contact me</a> if you spot any bugs or problems that arent listed below.</p>
+   <p>Please <a href="http://quickandeasysoftware.net/contact">contact me</a> or create an issue on Github if you spot any bugs or problems that arent listed below.</p>
    <ul>
      <li>If you have balloon tips turned on in Windows XP then Windows shows a   balloon tip when a device is removed ("device x can now be safely  		removed from the system"). If you remove one device and then try to   remove another, the second device will not be removed until you  		close the balloon tip. If this irritates you, then you can try   disabling balloon tips altogether. See <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;307729">this</a> link for information on how to do this.</li><br>
      <li>A disk  eject can fail when there is still an  application or process accessing the drive.<br>
-       If the application that is accessing the drive is stored on and has been launched from the drive that you're trying to eject then USB Disk Ejector can detect this and close it (see the options menu to enable this). Eg if you launch Portable Firefox from a USB flash drive and then try and eject that flash drive then USB Disk Ejector will close Portable Firefox and then successfully eject the drive.<br>
+       If the application that is accessing the drive is running from the drive that you're trying to eject then USB Disk Ejector can detect this and close it (see the options menu to enable this). Eg if you launch Portable Firefox from a USB flash drive and then try and eject that flash drive then USB Disk Ejector will close Portable Firefox and then successfully eject the drive.<br><br>
       If the program accessing the disk is one installed on your computer  (eg if Microsoft Word has opened a document on a flash drive that you are trying to eject) - then USB Disk Ejector wont be able to detect this and wont be able to close it. Doing this reliably requires administrator rights and a kernel driver - something beyond the scope of this program.<br>
       You
      may be able to use <a href="http://www.microsoft.com/technet/sysinternals/utilities/ProcessExplorer.mspx">Process Explorer</a> or <a href="http://www.emptyloop.com/unlocker/">Unlocker</a> to find  and stop whatever program or process is accessing a drive.</li></ul><br/>
@@ -369,12 +354,41 @@ img.centred {
    <h1>Disclaimer</h1>
    <p>     The software is provided "as-is" and without warranty of any kind,  	express, implied or otherwise, including without limitation, any  	warranty of merchantability or fitness for a particular purpose. In  	no event shall the initial developer or any other contributor be  	liable for any special, incidental, indirect or consequential  	damages of any kind, or any damages whatsoever resulting from loss  	of use, data or profits, whether or not advised of the possibility  	of damage, and on any theory of liability, arising out of or in  	connection with the use or performance of this software.</p>
    <h1>Support</h1>
-   <p><strong><a href="http://quick.mixnmojo.com/contact">Contact me</a>. </strong><br>
+   <p><a href="http://quickandeasysoftware.net/contact">Contact me</a>.<br>
      <br>
-     All my software is completely free. If you find this program useful   please consider making a donation. This can be done on my website. </p>
-   <br/>
-
-    <h1 id="FullChangelog">New Since The Last Major Release (The Full List of Changes)</h1>
+     All my software is completely free. If you find this program useful   please consider making a donation. This can be done on my <a href="http://quickandeasysoftware.net">website.</a> </p>
+   <br><br><br><br><br><br>
+   
+   
+   <h1>Changelogs for previous versions:</h1>
+	<h2>New in version 1.3.0.3</h2>
+	<p>
+	Fixed rare bug that could prevent custom card readers from being identified as a card reader when the program was first run.
+	</p>
+	<h2>New in version 1.3.0.1 and 1.3.0.2</h2>
+	<p>
+	Fixed tooltip bug that slipped through testing - if you hovered the mouse over the program when there was no drives inserted it would create an error. Many thanks to Bruce Lightfoot for spotting this.<br/><br/>
+	Improved error reporting, if a disk cant be ejected now - it should give a more appropriate response. (If a disk cant be ejected 99% of the time the reason is that a file or process is using the disk).
+	</p>
+    <h2>New in version 1.3.0</h2>
+	<p>There's been a huge number of changes since the last stable version. Most elements of the program have been rewritten. Many bugs have been fixed and there are some significant new features. The most important ones are listed below:</p>
+		<ul>
+		  <li>Full card reader and memory card support. You can now eject media, show/hide card readers, hide empty card readers and even define drives as card readers.</li>
+		  <li>Mountpoint support. All detection and ejecting is done using mountpoints rather than drive letters, this means that drives mounted in a folder <a href="http://lifehacker.com/373389/mount-usb-drives-in-assigned-folders-to-keep-them-straight">like this</a> are supported.</li>
+		  <li>Options window added - options can now be easily set and saved. There are now many settings that can be configured and customised.</li>
+		  <li>Much better notifications:
+			<ul>
+			  <li>Uses balloon hints in the taskbar for notifications instead of a messagebox</li>
+			  <li>Much better detection and explanation of the reasons for a failed eject</li>
+			  <li>Now notifies (via a balloon hint) when an eject is successful</li>
+			</ul>
+		  </li>
+		  <li>Support for Firewire disks. </li>
+		  <li>Big changes to drive detection and ejection code - stops the  freezing that could sometimes happen with the old version when trying to eject some types of drive.</li>
+		</ul>	
+	
+	<p>Full changelog for v 1.3.0:</p>
+	
     <ul>
       <li> Support for Firewire drives/disks</li>
       <li> Support for card readers/flash memory cards (Cards are now ejected not the card reader as happened in previous versions)</li>
@@ -459,7 +473,7 @@ img.centred {
     </ul>
   </div>
   <div class="footer">
-    <p><span class="smalltext">Bgbennyboy 10/12/11</span></p>
+    <p><span class="smalltext">Bennyboy 19/08/16</span></p>
 </div>
 </div>
 </body>

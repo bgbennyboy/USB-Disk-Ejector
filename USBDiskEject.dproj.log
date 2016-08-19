@@ -1,0 +1,28 @@
+Cleanup config: PropertyGroup - '$(Config)'=='Base' or '$(Base)'!=''
+Cleanup config: PropertyGroup - ('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''
+Cleanup config: PropertyGroup - ('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''
+Cleanup config: PropertyGroup - '$(Config)'=='Release' or '$(Cfg_1)'!=''
+Cleanup config: PropertyGroup - ('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''
+Cleanup config: PropertyGroup - '$(Config)'=='Debug' or '$(Cfg_2)'!=''
+Cleanup config: PropertyGroup - ('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''
+Cleanup config: PropertyGroup - '$(Base_Win32)'!=''
+- Removed: <VerInfo_Keys xmlns="http://schemas.microsoft.com/developer/msbuild/2003">CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+- Removed: <VerInfo_Locale xmlns="http://schemas.microsoft.com/developer/msbuild/2003">1033</VerInfo_Locale>
+- Removed: <VerInfo_Build xmlns="http://schemas.microsoft.com/developer/msbuild/2003">0</VerInfo_Build>
+- Removed: <VerInfo_MinorVer xmlns="http://schemas.microsoft.com/developer/msbuild/2003">0</VerInfo_MinorVer>
+Cleanup config: PropertyGroup - '$(Base_Win64)'!=''
+- Removed: <Icon_MainIcon xmlns="http://schemas.microsoft.com/developer/msbuild/2003">USBDiskEject_Icon1.ico</Icon_MainIcon>
+Cleanup config: PropertyGroup - '$(Cfg_1)'!=''
+- Removed: <Version xmlns="http://schemas.microsoft.com/developer/msbuild/2003">7.0</Version>
+Cleanup config: PropertyGroup - '$(Cfg_1_Win32)'!=''
+- Removed: <VerInfo_Keys xmlns="http://schemas.microsoft.com/developer/msbuild/2003">CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+- Removed: <VerInfo_Locale xmlns="http://schemas.microsoft.com/developer/msbuild/2003">1033</VerInfo_Locale>
+- Removed: <VerInfo_Build xmlns="http://schemas.microsoft.com/developer/msbuild/2003">0</VerInfo_Build>
+- Removed: <VerInfo_MinorVer xmlns="http://schemas.microsoft.com/developer/msbuild/2003">0</VerInfo_MinorVer>
+Cleanup config: PropertyGroup - '$(Cfg_2)'!=''
+- Removed: <Version xmlns="http://schemas.microsoft.com/developer/msbuild/2003">7.0</Version>
+Cleanup config: PropertyGroup - '$(Cfg_2_Win32)'!=''
+- Removed: <VerInfo_Keys xmlns="http://schemas.microsoft.com/developer/msbuild/2003">CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+- Removed: <VerInfo_Locale xmlns="http://schemas.microsoft.com/developer/msbuild/2003">1033</VerInfo_Locale>
+- Removed: <VerInfo_Build xmlns="http://schemas.microsoft.com/developer/msbuild/2003">0</VerInfo_Build>
+- Removed: <VerInfo_MinorVer xmlns="http://schemas.microsoft.com/developer/msbuild/2003">0</VerInfo_MinorVer>
