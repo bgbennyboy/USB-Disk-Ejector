@@ -150,7 +150,7 @@ begin
       EnterCriticalSection(CriticalSection);
       fChangeMessageCount:=0; //set it back to 0 because we're about to scan
       LeaveCriticalSection(CriticalSection);
-      fEjector.RescanAllDrives;
+      Synchronize( fEjector.RescanAllDrives); //Synchronise because changes will cause FOnDrivesChanged to be called which will cause main thread to update the form - but to be thread safe gui updating shouldnt be done from another thread - so synchronise makes it call it from main thead.
       //messagebeep(0);
     end
     else
@@ -260,7 +260,7 @@ begin
   {--------------------------------------------------------------------------------------}
 
 
-  //NEW remove drives that have no pointpoint at all - they dont show up in the normal windows eject dialog and we cant eject them here - so dont show them.
+  //NEW remove drives that have no mountpoint at all - they dont show up in the normal windows eject dialog and we cant eject them here - so dont show them.
   for i := DrivesCount - 1 downto 0 do
   begin
     if RemovableDrives[i].DriveMountPoint = '' then

@@ -241,7 +241,9 @@ procedure TMainfrm.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #27 then
   if Options.MinimizeToTray then
-    Self.MinimizeClick(self);
+    Self.MinimizeClick(self)
+  else
+    application.Minimize;
 end;
 
 procedure TMainfrm.FormShow(Sender: TObject);

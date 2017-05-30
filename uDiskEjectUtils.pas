@@ -133,7 +133,7 @@ begin
          (Trim(Ejector.RemovableDrives[J].ProductRevision) = CardReaders.CardReaders[i].ProductRevision) then
          begin
           Ejector.SetDriveAsCardReader(J, true);
-          break;
+          //break; //Removed break - some card readers have 2 identical drives so need both identifying as card reader - if we break here then only 1 gets identified as a card reader. Eg Kingston card reader MobileLite G4
          end;
     end;
   end;
