@@ -472,11 +472,17 @@ end;
 procedure TMainfrm.GUIRemoveDrive(MountPoint: String; RemoveCard: boolean);
 var
   EjectError: integer;
+  strCardEjectSwitch: string;
 begin
   //Check if trying to eject drive that its running from
   if IsAppRunningFromThisLocation( MountPoint ) then
   begin
-    StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(MountPoint, '"'));
+    if RemoveCard then
+      strCardEjectSwitch := ' /EJECTCARD' //Space before as it should always be last param
+    else
+      strCardEjectSwitch := '';
+
+    StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(MountPoint, '"') + strCardEjectSwitch);
     CloseProgram;
     Exit;
   end;
@@ -696,8 +702,6 @@ begin
   if Tree.VisibleCount = 0 then exit;
 
 
-  //TODO - make switch for this and add it to startinmobilemode below
-  //TODO - sort this out for hotkey press too
   RemoveCard:=Ejector.RemovableDrives[Tree.focusednode.Index].IsCardReader;
 
   MountPoint:=Ejector.RemovableDrives[Tree.focusednode.Index].DriveMountPoint;

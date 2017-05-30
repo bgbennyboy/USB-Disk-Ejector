@@ -80,6 +80,7 @@ type
     function GetCommandLine_RemoveMountPoint: boolean;
     function GetCommandLine_RemoveName: boolean;
     function GetCommandLine_RemoveThis: boolean;
+    function GetCommandLine_EjectCard: boolean;
     //function GetCommandLine_CloseApps: boolean;
     //function GetCommandLine_CloseAppsForce: boolean;
     //function GetCommandLine_Param_UseWindowsNotifications: string;
@@ -108,6 +109,7 @@ type
     property CommandLine_RemoveLabel:                     boolean read GetCommandLine_RemoveLabel;
     property CommandLine_RemoveMountPoint:                boolean read GetCommandLine_RemoveMountPoint;
     property CommandLine_RemoveName:                      boolean read GetCommandLine_RemoveName;
+    property CommandLine_EjectCard:                       boolean read GetCommandLine_EjectCard;
     //property CommandLine_CloseApps:                     boolean read GetCommandLine_CloseApps;
    // property CommandLine_CloseAppsForce:                boolean read GetCommandLine_CloseAppsForce;
    //property CommandLine_UseWindowsNotifications:        boolean read GetCommandLine_UseWindowsNotifications;
@@ -392,6 +394,14 @@ end;}
 function TOptions.GetCommandLine_RemoveMountPoint: boolean;
 begin
   if FindCmdLineSwitch('REMOVEMOUNTPOINT', true) then
+    result:=true
+  else
+    result:=false;
+end;
+
+function TOptions.GetCommandLine_EjectCard: boolean;
+begin
+  if FindCmdLineSwitch('EJECTCARD', true) then
     result:=true
   else
     result:=false;

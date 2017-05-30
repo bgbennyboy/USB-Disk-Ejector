@@ -46,7 +46,7 @@ uses
   uCardReaderManager in 'uCardReaderManager.pas';
 
 var
-  strTempMountPoint, strNewMountPoint: string;
+  strTempMountPoint, strNewMountPoint, strCardEjectSwitch: string;
   Ejector: TDriveEjector;
   EjectErrorCode: integer;
   CardEject: boolean;
@@ -57,7 +57,7 @@ begin
   Application.Initialize;
 
   //TODO!!!!!!!!!!!!!!!!!!  Fix this with proper switches ************************
-  CardEject:= true;
+  //CardEject:= true;
   //******************************************************************************
 
   // ? Param
@@ -67,10 +67,22 @@ begin
     exit;
   end;
 
+  // EjectCard Param
+  if Options.CommandLine_EjectCard then
+  begin
+    CardEject:= true;
+    strCardEjectSwitch := ' /EJECTCARD'; //Space before as it should always be last param
+  end
+  else
+  begin
+    CardEject:= false;
+    strCardEjectSwitch := '';
+  end;
+
   // RemoveThis Param
   if options.CommandLine_RemoveThis then
   begin
-    StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + FindMountPoint( ExtractFilePath(Application.ExeName) ) );
+    StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + FindMountPoint( ExtractFilePath(Application.ExeName) ) + strCardEjectSwitch);
     exit;
   end;
 
@@ -84,7 +96,7 @@ begin
     if (IsAppRunningFromThisLocation( ConvertDriveLetterToMountPoint(options.CommandLine_Param_RemoveLetter)) ) and
        (options.InMobileMode = false) then
     begin
-      StartInMobileMode('/NOSAVE ' + '/REMOVELETTER ' + options.CommandLine_Param_RemoveLetter);
+      StartInMobileMode('/NOSAVE ' + '/REMOVELETTER ' + options.CommandLine_Param_RemoveLetter + strCardEjectSwitch);
       exit;
     end;
 
@@ -169,7 +181,7 @@ begin
     if ( IsAppRunningFromThisLocation( options.CommandLine_Param_RemoveMountPoint ) ) and
        (options.InMobileMode = false) then
     begin                                                   //Add quotes back - if param has spaces then param is truncated without the quotes
-      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(options.CommandLine_Param_RemoveMountPoint, '"') );
+      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(options.CommandLine_Param_RemoveMountPoint, '"') + strCardEjectSwitch);
       exit;
     end;
 
@@ -261,7 +273,7 @@ begin
     if ( IsAppRunningFromThisLocation( strTempMountPoint ) ) and
        (options.InMobileMode = false) and (strTempMountPoint <> '')then
     begin                                                   //Add quotes if param has spaces then param is truncated without the quotes
-      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(strTempMountPoint, '"'));
+      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(strTempMountPoint, '"') + strCardEjectSwitch);
       exit;
     end
     else
@@ -355,7 +367,7 @@ begin
     if ( IsAppRunningFromThisLocation( strTempMountPoint ) ) and
        (options.InMobileMode = false) and (strTempMountPoint <> '')then
     begin                                                   //Add quotes - if param has spaces then param is truncated without the quotes
-      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(strTempMountPoint, '"'));
+      StartInMobileMode('/NOSAVE ' + '/REMOVEMOUNTPOINT ' + StrQuote(strTempMountPoint, '"') + strCardEjectSwitch);
       exit;
     end
     else

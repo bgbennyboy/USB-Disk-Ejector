@@ -45,7 +45,8 @@ const
                         '/REMOVELABEL'  +  #13 + 'Ejects the drive with the specified label.'  + #13 +  'Partial label matching is possible if a wildcard (*) is used. Eg /REMOVELABEL *BEN would eject a drive that had Ben in its label (eg Ben''s Pen Drive).' + #13#13 +
                         '/REMOVELETTER' +  #13 + 'Ejects the drive with the specified drive letter.' + #13#13 +
                         '/REMOVEMOUNTPOINT' + #13 + 'Ejects the drive with the specified mountpoint.' + #13#13 +
-                        '/REMOVENAME'   +  #13 + 'Ejects the drive with the specified name.' + #13 +  'Partial name matching is possible if a wildcard (*) is used. Eg /REMOVENAME *SANDISK would eject a drive that had Sandisk in its name.' + #13#13
+                        '/REMOVENAME'   +  #13 + 'Ejects the drive with the specified name.' + #13 +  'Partial name matching is possible if a wildcard (*) is used. Eg /REMOVENAME *SANDISK would eject a drive that had Sandisk in its name.' + #13#13 +
+                        '/EJECTCARD'   +  #13 + 'Ejects the card media from a drive rather than trying to eject the drive itself.' + #13 +  'Combine it with other switches Eg /REMOVELETTER G /EJECTCARD would eject an SD card in drive G.' + #13#13
                         ;
 
 
