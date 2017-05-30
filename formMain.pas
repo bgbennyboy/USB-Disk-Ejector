@@ -261,21 +261,28 @@ begin
   if Optionsfrm.Showing then exit;
   if Aboutfrm.Showing then exit;
 
-  //TODO - fix this
   EjectCard:=false;
 
   case TCustomHotKey(HotKeys.HotKeys[Index]).HotKeyType of
     RestoreApp:             TrayIcon1Click(Mainfrm);
 
-    EjectByDriveLetter:     GUIRemoveDrive(ConvertDriveLetterToMountPoint(TCustomHotKey(
-                                HotKeys.HotKeys[Index]).HotKeyParam), EjectCard);
+    EjectByDriveLetter:     begin
+                              TempMountPoint := ConvertDriveLetterToMountPoint(TCustomHotKey(HotKeys.HotKeys[Index]).HotKeyParam);
+                              GetIfCardReader_FromMountPoint(TempMountPoint, Ejector, EjectCard);
+                              GUIRemoveDrive(TempMountPoint, EjectCard);
+                            end;
 
-    EjectByMountPoint:      GUIRemoveDrive(TCustomHotKey(
+    EjectByMountPoint:      begin
+                              GetIfCardReader_FromMountPoint(TCustomHotKey( HotKeys.HotKeys[Index]).HotKeyParam, Ejector, EjectCard);
+
+                              GUIRemoveDrive(TCustomHotKey(
                                 HotKeys.HotKeys[Index]).HotKeyParam, EjectCard);
+                            end;
 
     EjectByDriveName:       begin
                               TempParam:=TCustomHotKey(HotKeys.HotKeys[Index]).HotKeyParam;
                               TempMountPoint:=MatchNameToMountPoint(TempParam, Ejector);
+                              GetIfCardReader_FromName(TempParam, Ejector, EjectCard);
 
                               if TempMountPoint = '' then
                               begin
@@ -289,6 +296,7 @@ begin
     EjectByDriveLabel:      begin
                               TempParam:=TCustomHotKey(HotKeys.HotKeys[Index]).HotKeyParam;
                               TempMountPoint:=MatchLabelToMountPoint(TempParam, Ejector);
+                              GetIfCardReader_FromMountPoint(TempMountPoint, Ejector, EjectCard);
 
                               if TempMountPoint = '' then
                               begin

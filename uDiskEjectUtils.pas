@@ -51,6 +51,8 @@ function IsWindowsVistaorLater : Boolean;
 function FindMountPoint(Directory: string): string;
 function IsAppRunningFromThisLocation(MountPoint: string): boolean;
 function GetCaseSensitiveMountPointName(MountPoint: string;  Ejector: TDriveEjector): string;
+function GetIfCardReader_FromName(Name: string; Ejector: TDriveEjector; var CardReaderResult: boolean): boolean;
+function GetIfCardReader_FromMountPoint(MountPoint: string; Ejector: TDriveEjector; var CardReaderResult: boolean): boolean;
 
 implementation
 
@@ -203,6 +205,63 @@ begin
       result:=Ejector.RemovableDrives[i].DriveMountPoint;
   end;
 end;
+
+
+
+function GetIfCardReader_FromName(Name: string; Ejector: TDriveEjector; var CardReaderResult: boolean): boolean;
+var
+  i, DrivesCount: integer;
+begin
+   result:=false;
+
+  if Ejector = nil then exit;
+
+  DrivesCount:=Ejector.DrivesCount;
+  if DrivesCount = 0 then exit;
+
+  if Name[1] = '*' then  //wildcard - partial name match
+  begin
+    for I := 0 to DrivesCount -1 do
+    begin
+      if pos(Uppercase(copy(Name, 2, length(name) - 1 )), Trim(Uppercase(Ejector.RemovableDrives[i].VendorId) + ' ' + Trim(Uppercase(Ejector.RemovableDrives[i].ProductID)))) <> 0 then //found
+      begin
+        CardReaderResult := Ejector.RemovableDrives[i].IsCardReader;
+        result := true;
+        break;
+      end;
+    end;
+  end
+  else
+  for I := 0 to DrivesCount -1 do
+  begin
+    if Uppercase(Name) = Trim(Uppercase(Ejector.RemovableDrives[i].VendorId) + ' ' + Trim(Uppercase(Ejector.RemovableDrives[i].ProductID))) then
+      CardReaderResult := Ejector.RemovableDrives[i].IsCardReader;
+      result := true;
+  end;
+end;
+
+function GetIfCardReader_FromMountPoint(MountPoint: string; Ejector: TDriveEjector; var CardReaderResult: boolean): boolean;
+var
+  i, DrivesCount: integer;
+begin
+   result:=false;
+
+  if Ejector = nil then exit;
+
+  DrivesCount:=Ejector.DrivesCount;
+  if DrivesCount = 0 then exit;
+
+  for I := 0 to DrivesCount -1 do
+  begin
+    if MountPoint = Ejector.RemovableDrives[i].DriveMountPoint then
+    begin
+      CardReaderResult := Ejector.RemovableDrives[i].IsCardReader;
+      result := true;
+    end;
+
+  end;
+end;
+
 
 function MatchLabelToMountPoint(DiskLabel: string): string;
 var
