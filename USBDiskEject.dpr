@@ -445,7 +445,7 @@ begin
 
 
   //*******************Disable this before release !!!!*************************
-  ReportMemoryLeaksOnShutdown:=true;
+  //ReportMemoryLeaksOnShutdown:=true;
   //****************************************************************************
 
 

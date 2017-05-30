@@ -218,7 +218,7 @@ img.centred {
   <div class="logo">
     <h1>USB Disk Ejector<br/>
     By Bennyboy<br/>
-   Version 1.3.0.4<br/>
+   Version 1.3.0.5<br/>
    Http://quickandeasysoftware.net</h1>
   </div>
   <div class="clearfloat"></div>
@@ -228,9 +228,12 @@ img.centred {
   <div class="content">
 	<h1>New in this version</h1>
 	<p>
-	Added option to use the escape key to minimize the window.<br></br>
-	Fixed problem with some rare drives that dont have a mountpoint. These cant be ejected in the usual way and indeed dont show up in windows' own safely remove dialog. Drives like these are no longer shown in the program.<br></br>
-	Stopped compressing with UPX. The exe is now 4MB in size instead of 1.5MB but it means that it uses half the memory which is a worthwhile tradeoff.
+	Added: /EJECTCARD command line switch - this makes it eject the card media rather than the drive itself. Combine it with other switches Eg /REMOVELETTER G /EJECTCARD would eject an SD card in drive G<br><br>
+	Changed: The 'Bring to front/restore' hotkey now toggles between hiding/showing the program.
+	Fixed: Card readers with identical drives like Kingston MobileLite G4. Previously you could only set one drive as a card reader - now if you define one as a card reader both become card readers.<br></br>
+	Fixed: Pressing escape to minimize didnt work when 'minimize to tray' was disabled.<br><br>
+	Fixed: Memory card ejection via hotkeys. Previously ejecting via a hotkey just ejected the drive regardless of whether it was a card reader or not. Now it behaves like the rest of the program - if it is a card reader then the media is ejected rather than the drive.<br></br>
+	Fixed: Memory card ejection when the program is in 'mobile mode' - this is when it copies and restarts itself eg when trying to eject the drive the program is running from. Card reader settings are now respected here - if it is a card reader then the media is ejected rather than the drive.
 	</p>  
 	
 	
@@ -260,7 +263,7 @@ img.centred {
       <li>Eject a drive by specifying a mountpoint</li>
       <li>Eject a drive by specifying a partial drive name.</li>
     </ul>
-    <p>So you could setup a desktop shortcut or bat file to eject a drive. Or if you use a menu such as PStart or the Portable Apps launcher you could use the command line switches so that with one click the menu will exit, the program will run  and the drive will be ejected. See the '<a href="#CommandLine">Command Line</a>'  section below for more information. </p>
+    <p>So you could setup a hotkey, desktop shortcut or bat file to eject a drive. Or if you use a menu such as PStart or the Portable Apps launcher you could use the command line switches so that with one click the menu will exit, the program will run  and the drive will be ejected. See the '<a href="#CommandLine">Command Line</a>'  section below for more information. </p>
 <p><strong>It can eject disks when Vista  cant.</strong> In Vista, disks often cant be ejected because they have an open explorer window. Other versions of Windows will close any explorer windows belonging to a disk but Vista often doesnt - so USB Disk Ejector closes does it before ejecting.</p>
     <p><strong>It can eject disks when Windows sometimes cant.</strong> If any applications are running from a disk then Windows wont be able to eject it. USB Disk Ejector can detect and auto-close any applications running from the disk before ejecting. Please note this closes applications that were launched<strong> from</strong> the  disk not applications that have opened a file <strong>on</strong> the disk. See the limitations section further down for more information.</p>
 <p><strong>It is small.</strong> Less than 1.5MB (when UPX compressed).</p>
@@ -316,7 +319,12 @@ img.centred {
       <li>/REMOVELABEL<br>
         Ejects the drive with the specified label. Eg /REMOVLABEL "Work Drive"<br>
         Partial name matching is possible if a wildcard (*) is used. Eg   /REMOVELABEL "*BEN" would eject a drive that had Ben in its label (eg Ben's Pen Drive).<br>
-      </li>      
+      </li>    
+<br>	  
+      <li>/EJECTCARD<br>
+        Ejects the card media from a drive rather than trying to eject the drive itself.<br>
+        Combine it with other switches Eg /REMOVELETTER G /EJECTCARD would eject an SD card in drive G.<br>
+      </li>    	  
     </ul>
     <p>The command line switches could be used to eject a drive from the command prompt, a bat file, a desktop shortcut or as part of a script or menu.</p>
    <br/>
@@ -361,6 +369,12 @@ img.centred {
    
    
    <h1>Changelogs for previous versions:</h1>
+	<h2>New in version 1.3.0.4</h2>
+	<p>
+	Added option to use the escape key to minimize the window.<br></br>
+	Fixed problem with some rare drives that dont have a mountpoint. These cant be ejected in the usual way and indeed dont show up in windows' own safely remove dialog. Drives like these are no longer shown in the program.<br></br>
+	Stopped compressing with UPX. The exe is now 4MB in size instead of 1.5MB but it means that it uses half the memory which is a worthwhile tradeoff.
+	</p>
 	<h2>New in version 1.3.0.3</h2>
 	<p>
 	Fixed rare bug that could prevent custom card readers from being identified as a card reader when the program was first run.

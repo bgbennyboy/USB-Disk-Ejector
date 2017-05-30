@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2015 Bennyboy
+  Copyright (c) 2006 - 2017 Bennyboy
   Http://quickandeasysoftware.net
 ******************************************************
 }
@@ -33,17 +33,10 @@ DO BEFORE RELEASE:
 }
 
 {
-TODO Before Release:
-  Update credits in readme and about form
-
-  COMMAND LINE:
-        Need switch for command line card reader device - will eject card by default but not reader
-        Need to fix in start in mobile mode - need switch for eject card or card reader device
-
+TODO:
   OTHER:
      For grouped drives show mountpoint/drive letters somehow
         Cant tab to the move label on main form
-        Windows 2000 support is broken
 
 Optional/Possibilities/Non-critical:
         See mindmap for full list
@@ -51,7 +44,6 @@ Optional/Possibilities/Non-critical:
         Intercept shutdown/restart message and warn that usb stick is still in the drive. Dont forget it.
         REMOVEALL switch - eject every usb drive it finds?
         Hide certain drives when specified by user?
-        Since last stable release I've disabled 'program is still running message' when app is minimized- re-enable this?
         Use new Delph 2010 hints for all controls in options
         If restarts in mobile mode and eject fails - load main app back up again somehow?
         Customise what is displayed for each drive? Icon, colour, label etc

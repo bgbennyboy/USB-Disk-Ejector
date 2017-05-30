@@ -23,7 +23,7 @@ Windows XP, Vista, 7, 8, 10  (32 and 64 bit)
 * Eject a drive by specifying a mountpoint
 * Eject a drive by specifying a partial drive name.
 
-So you could setup a desktop shortcut or bat file to eject a drive. Or if you use a menu such as PStart or the Portable Apps launcher you could use the command line switches so that with one click the menu will exit, the program will run and the drive will be ejected. See the ‘Command Line’ section in the readme for more information.
+So you could setup a hotkey, desktop shortcut or bat file to eject a drive. Or if you use a menu such as PStart or the Portable Apps launcher you could use the command line switches so that with one click the menu will exit, the program will run and the drive will be ejected. See the ‘Command Line’ section in the readme for more information.
 
 **It can eject disks when Vista cant.** On Windows Vista, disks often cant be ejected because they have an open explorer window. Other versions of Windows will close any explorer windows belonging to a disk but Vista often doesnt – so USB Disk Ejector closes it before ejecting.
 
@@ -33,7 +33,7 @@ So you could setup a desktop shortcut or bat file to eject a drive. Or if you us
 
 **It is open source.** All source code can be found on my Github.
 
-#What do I need to use this?
+##What do I need to use this?
 
 A removable USB or Firewire device such as a flash drive, digital camera or external hard drive. Any USB or Firewire device that shows as a disk should be removable by this.
 
@@ -94,6 +94,10 @@ The following command line options are available:
 *   /REMOVELABEL  
     Ejects the drive with the specified label. Eg /REMOVLABEL "Work Drive"  
     Partial name matching is possible if a wildcard (*) is used. Eg /REMOVELABEL "*BEN" would eject a drive that had Ben in its label (eg Ben's Pen Drive).  
+	
+*   /EJECTCARD  
+    Ejects the card media from a drive rather than trying to eject the drive itself.  
+    Combine it with other switches Eg /REMOVELETTER G /EJECTCARD would eject an SD card in drive G.  	
 
 The command line switches could be used to eject a drive from the command prompt, a bat file, a desktop shortcut or as part of a script or menu.
 
