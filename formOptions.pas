@@ -223,7 +223,7 @@ begin
     for I := 0 to HotKeys.HotKeys.Count - 1 do
     begin
         case TCustomHotKey(HotKeys.HotKeys[i]).HotKeyType of
-          RestoreApp:           AddListviewItem(listViewHotkeys, str_Hotkey_Restore_Window, ['',HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
+          RestoreMinimizeAppToggle: AddListviewItem(listViewHotkeys, str_Hotkey_RestoreMinimize_Window, ['',HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
           EjectByDriveLabel:    AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Label, [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
           EjectByDriveLetter:   AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Letter, [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
           EjectByMountPoint:    AddListviewItem(listViewHotkeys, str_Hotkey_Eject_MountPoint, [TCustomHotKey(HotKeys.HotKeys[i]).HotKeyParam, HotKeys.HotKeyToText(TCustomHotKey(HotKeys.HotKeys[i]).HotKey, true)]);
@@ -425,7 +425,7 @@ begin
   HotKeyParam:='';
 
   case comboboxHotkeyAction.ItemIndex of
-    0: TempHotKeyAction:=RestoreApp;
+    0: TempHotKeyAction:=RestoreMinimizeAppToggle;
     1: begin
         TempHotKeyAction:=EjectByDriveLabel;
         HotKeyParam:=comboboxHotKeyParams.Text;
@@ -443,7 +443,7 @@ begin
         HotKeyParam:=comboboxHotKeyParams.Text;
        end
   else
-       TempHotKeyAction:=RestoreApp;
+       TempHotKeyAction:=RestoreMinimizeAppToggle;
   end;
 
   try
@@ -452,7 +452,7 @@ begin
     else
     begin
       case TCustomHotKey(HotKeys.HotKeys[listViewHotkeys.Items.Count]).HotKeyType of
-        RestoreApp:           AddListviewItem(listViewHotkeys, str_Hotkey_Restore_Window, ['',HotKeys.HotKeyToText(HotKey1.HotKey, true)]);
+        RestoreMinimizeAppToggle: AddListviewItem(listViewHotkeys, str_Hotkey_RestoreMinimize_Window, ['',HotKeys.HotKeyToText(HotKey1.HotKey, true)]);
         EjectByDriveLabel:    AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Label,   [TCustomHotKey(HotKeys.HotKeys[listViewHotkeys.Items.Count]).HotKeyParam, HotKeys.HotKeyToText(HotKey1.HotKey, true)]);
         EjectByDriveLetter:   AddListviewItem(listViewHotkeys, str_Hotkey_Eject_Letter, [TCustomHotKey(HotKeys.HotKeys[listViewHotkeys.Items.Count]).HotKeyParam, HotKeys.HotKeyToText(HotKey1.HotKey, true)]);
         EjectByMountPoint:    AddListviewItem(listViewHotkeys, str_Hotkey_Eject_MountPoint,   [TCustomHotKey(HotKeys.HotKeys[listViewHotkeys.Items.Count]).HotKeyParam, HotKeys.HotKeyToText(HotKey1.HotKey, true)]);

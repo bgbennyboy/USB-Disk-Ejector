@@ -86,7 +86,7 @@ const
   str_Main_Popup_Exit               = 'Exit';
 
   //Options form
-  str_Hotkey_Restore_Window         = 'Restore program window';
+  str_Hotkey_RestoreMinimize_Window = 'Restore/minimize program window';
   str_Hotkey_Eject_Label            = 'Eject drive by label';
   str_Hotkey_Eject_Letter           = 'Eject drive by letter';
   str_Hotkey_Eject_MountPoint       = 'Eject drive by mountpoint';

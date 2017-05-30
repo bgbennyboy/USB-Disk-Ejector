@@ -40,7 +40,7 @@ uses
 
 type
   TCustomHotKeyAction = (
-    RestoreApp,
+    RestoreMinimizeAppToggle,
     EjectByDriveLabel,
     EjectByDriveLetter,
     EjectByMountPoint,

@@ -243,7 +243,7 @@ begin
   if Options.MinimizeToTray then
     Self.MinimizeClick(self)
   else
-    application.Minimize;
+    Application.Minimize;
 end;
 
 procedure TMainfrm.FormShow(Sender: TObject);
@@ -264,7 +264,17 @@ begin
   EjectCard:=false;
 
   case TCustomHotKey(HotKeys.HotKeys[Index]).HotKeyType of
-    RestoreApp:             TrayIcon1Click(Mainfrm);
+    RestoreMinimizeAppToggle: begin
+                                if (IsIconic(Application.Handle)=false) and (Self.Visible= true) then //Already showing...so minimize
+                                begin
+                                  if Options.MinimizeToTray then
+                                    Self.MinimizeClick(self)
+                                  else
+                                    Application.Minimize;
+                                end
+                                else //Hidden - so show and bring to front
+                                  TrayIcon1Click(Mainfrm);
+                              end;
 
     EjectByDriveLetter:     begin
                               TempMountPoint := ConvertDriveLetterToMountPoint(TCustomHotKey(HotKeys.HotKeys[Index]).HotKeyParam);

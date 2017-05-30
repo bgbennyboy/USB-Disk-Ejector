@@ -83,10 +83,6 @@ object Optionsfrm: TOptionsfrm
       TabOrder = 0
       object TabSheet1: TTabSheet
         Caption = 'TabSheet1'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object ScrollBox1: TScrollBox
           Left = 0
           Top = 0
@@ -173,10 +169,6 @@ object Optionsfrm: TOptionsfrm
       object TabSheet2: TTabSheet
         Caption = 'TabSheet2'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object ScrollBox2: TScrollBox
           Left = 0
           Top = 0
@@ -507,24 +499,24 @@ object Optionsfrm: TOptionsfrm
             object comboBoxHotKeyAction: TComboBox
               Left = 10
               Top = 47
-              Width = 188
+              Width = 213
               Height = 21
               Style = csDropDownList
               ItemIndex = 0
               TabOrder = 0
-              Text = 'Bring to the front/restore'
+              Text = 'Bring to the front/minimize toggle'
               OnChange = comboBoxHotKeyActionChange
               Items.Strings = (
-                'Bring to the front/restore'
+                'Bring to the front/minimize toggle'
                 'Eject a drive - by drive label'
                 'Eject a drive - by drive letter'
                 'Eject a drive - by mountpoint'
                 'Eject a drive - by drive name')
             end
             object hotKey1: TJvHotKey
-              Left = 221
+              Left = 229
               Top = 47
-              Width = 164
+              Width = 156
               Height = 21
               HotKey = 112
               InvalidKeys = [hcNone]
@@ -533,7 +525,7 @@ object Optionsfrm: TOptionsfrm
               ParentColor = False
             end
             object btnAddHotKey: TBitBtn
-              Left = 221
+              Left = 229
               Top = 81
               Width = 75
               Height = 25
@@ -560,7 +552,7 @@ object Optionsfrm: TOptionsfrm
                 item
                   Caption = 'Action'
                   MinWidth = 100
-                  Width = 130
+                  Width = 160
                 end
                 item
                   Caption = 'Param'
@@ -569,8 +561,8 @@ object Optionsfrm: TOptionsfrm
                 end
                 item
                   Caption = 'Hotkey'
-                  MinWidth = 80
-                  Width = 90
+                  MinWidth = 50
+                  Width = 60
                 end>
               ReadOnly = True
               RowSelect = True
@@ -582,7 +574,7 @@ object Optionsfrm: TOptionsfrm
             object comboboxHotKeyParams: TComboBox
               Left = 10
               Top = 82
-              Width = 188
+              Width = 213
               Height = 21
               TabOrder = 2
               Visible = False
@@ -647,7 +639,7 @@ object Optionsfrm: TOptionsfrm
     Left = 72
     Top = 288
     Bitmap = {
-      494C01010700E803700430003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010107000900040030003000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000C00000006000000001002000000000000020
       0100000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

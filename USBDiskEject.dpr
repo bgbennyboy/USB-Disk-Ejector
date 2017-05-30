@@ -56,10 +56,6 @@ var
 begin
   Application.Initialize;
 
-  //TODO!!!!!!!!!!!!!!!!!!  Fix this with proper switches ************************
-  //CardEject:= true;
-  //******************************************************************************
-
   // ? Param
   if FindCmdLineSwitch('?', true) then
   begin
