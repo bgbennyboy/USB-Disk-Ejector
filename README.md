@@ -5,7 +5,7 @@ It will work on any version of Windows from XP onwards, that includes:
 
 Windows XP, Vista, 7, 8, 10  (32 and 64 bit)
 
-### What makes this so useful?
+## What makes this so useful?
 
 **It is quick.** Rather than clicking through the “Safely Remove Hardware” dialog you can very quickly remove drives or card media. You can even create shortcuts or hotkeys to eject a drive.
 
@@ -33,7 +33,7 @@ So you could setup a hotkey, desktop shortcut or bat file to eject a drive. Or i
 
 **It is open source.** All source code can be found on my Github.
 
-### What do I need to use this?
+## What do I need to use this?
 
 A removable USB or Firewire device such as a flash drive, digital camera or external hard drive. Any USB or Firewire device that shows as a disk should be removable by this.
 
