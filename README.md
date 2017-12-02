@@ -78,6 +78,9 @@ The following command line options are available:
 *   /NOSAVE  
     Settings are not saved, no cfg file will be created. But if theres USB_Disk_Eject.cfg in the same place as the program, options will be read from it. Use this if you want to launch the program but stop it saving settings or overwriting existing settings.
 
+*	/CFGDIR 
+	Specify a different path for the cfg file (the file where settings are stored). EG /CFGDIR "c:\users\ben\desktop\stuff"
+
 *   /REMOVETHIS  
     Ejects the drive that the program is running from. Eg if the program is run from a usb stick on drive G then drive G would be ejected.
 
