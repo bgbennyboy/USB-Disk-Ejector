@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2015 Bennyboy
+  Copyright (c) 2006 - 2017 Bennyboy
   Http://quickandeasysoftware.net
 ******************************************************
 }
@@ -62,6 +62,35 @@ begin
     showMessage(str_Question);
     exit;
   end;
+
+  // IniPath Param
+  // Its already initialised in the uDiskEjectOptions unit - here we just check the given path is valid and exit if not
+  if Options.CommandLine_CfgDir then
+  begin
+    if not (Options.CommandLine_Param_CfgDir > '') or
+      DirectoryExists(options.CommandLine_Param_CfgDir, true) = false or
+      IsDirectoryWriteable(options.CommandLine_Param_CfgDir) = false then
+    begin
+      MyTrayIcon := TTrayIcon.Create(application);
+      try
+        MyTrayIcon.Visible := true;
+        MyTrayIcon.BalloonTitle := 'USB Disk Ejector';
+        MyTrayIcon.BalloonTimeout := 4000;
+
+        Communicator := TCommunicationManager.Create(MyTrayIcon);
+        try
+          Communicator.DoMessage(str_IniPathInvalid, bfError);
+          exit;
+        finally
+          Communicator.Free;
+        end;
+
+      finally
+        MyTrayIcon.Free;
+      end;
+    end;
+  end;
+
 
   // EjectCard Param
   if Options.CommandLine_EjectCard then
