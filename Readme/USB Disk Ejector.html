@@ -218,7 +218,7 @@ img.centred {
   <div class="logo">
     <h1>USB Disk Ejector<br/>
     By Bennyboy<br/>
-   Version 1.3.0.5<br/>
+   Version 1.3.0.6<br/>
    Http://quickandeasysoftware.net</h1>
   </div>
   <div class="clearfloat"></div>
@@ -228,12 +228,7 @@ img.centred {
   <div class="content">
 	<h1>New in this version</h1>
 	<p>
-	Added: /EJECTCARD command line switch - this makes it eject the card media rather than the drive itself. Combine it with other switches Eg /REMOVELETTER G /EJECTCARD would eject an SD card in drive G<br><br>
-	Changed: The 'Bring to front/restore' hotkey now toggles between hiding/showing the program.
-	Fixed: Card readers with identical drives like Kingston MobileLite G4. Previously you could only set one drive as a card reader - now if you define one as a card reader both become card readers.<br></br>
-	Fixed: Pressing escape to minimize didnt work when 'minimize to tray' was disabled.<br><br>
-	Fixed: Memory card ejection via hotkeys. Previously ejecting via a hotkey just ejected the drive regardless of whether it was a card reader or not. Now it behaves like the rest of the program - if it is a card reader then the media is ejected rather than the drive.<br></br>
-	Fixed: Memory card ejection when the program is in 'mobile mode' - this is when it copies and restarts itself eg when trying to eject the drive the program is running from. Card reader settings are now respected here - if it is a card reader then the media is ejected rather than the drive.
+	Added: /CFGDIR command line switch - this lets you specify a different location for the cfg file that stores all the settings. Normally this file is located in the same directory as the program but some people wanted a way to change this.
 	</p>  
 	
 	
@@ -304,6 +299,10 @@ img.centred {
       <li>/NOSAVE <br>
         Settings are not saved, no cfg file will be created. But if theres USB_Disk_Eject.cfg in the same place as the program, options will be read from it. Use this if you want to launch the program but stop it saving settings or overwriting existing settings.</li>
       <br>
+      <li>/CFGDIR <br>
+        Specify a different path for the cfg file (the file where settings are stored). EG /CFGDIR "c:\users\ben\desktop\stuff"</li>
+      <br>	  
+	  
       <li>/REMOVETHIS <br>
       Ejects the drive that the program is running from. Eg if the program   is run from a usb stick on drive G then drive G would be ejected.</li>
       <br>
@@ -369,6 +368,16 @@ img.centred {
    
    
    <h1>Changelogs for previous versions:</h1>
+	<h2>New in version 1.3.0.5</h2>
+	<p>
+	Added: /EJECTCARD command line switch - this makes it eject the card media rather than the drive itself. Combine it with other switches Eg /REMOVELETTER G /EJECTCARD would eject an SD card in drive G<br><br>
+	Changed: The 'Bring to front/restore' hotkey now toggles between hiding/showing the program.<br><br>
+	Fixed: Card readers with identical drives like Kingston MobileLite G4. Previously you could only set one drive as a card reader - now if you define one as a card reader both become card readers.<br></br>
+	Fixed: Pressing escape to minimize didnt work when 'minimize to tray' was disabled.<br><br>
+	Fixed: Memory card ejection via hotkeys. Previously ejecting via a hotkey just ejected the drive regardless of whether it was a card reader or not. Now it behaves like the rest of the program - if it is a card reader then the media is ejected rather than the drive.<br></br>
+	Fixed: Memory card ejection when the program is in 'mobile mode' - this is when it copies and restarts itself eg when trying to eject the drive the program is running from. Card reader settings are now respected here - if it is a card reader then the media is ejected rather than the drive.
+	</p>     
+   
 	<h2>New in version 1.3.0.4</h2>
 	<p>
 	Added option to use the escape key to minimize the window.<br></br>
@@ -487,7 +496,7 @@ img.centred {
     </ul>
   </div>
   <div class="footer">
-    <p><span class="smalltext">Bennyboy 19/08/16</span></p>
+    <p><span class="smalltext">Bennyboy 02/12/17</span></p>
 </div>
 </div>
 </body>

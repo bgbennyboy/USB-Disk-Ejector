@@ -64,7 +64,8 @@ uses
   Menus, VirtualTrees, Generics.Collections,
 
   uDiskEjectConst, uDiskEjectUtils, uDiskEjectOptions,
-  uCustomHotKeyManager, uCardReaderManager, uDriveEjector, uCommunicationManager;
+  uCustomHotKeyManager, uCardReaderManager, uDriveEjector, uCommunicationManager,
+  System.ImageList;
 
 type
   TMainfrm = class(TForm)

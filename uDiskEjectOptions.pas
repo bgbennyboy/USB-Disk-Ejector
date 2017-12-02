@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2015 Bennyboy
+  Copyright (c) 2006 - 2017 Bennyboy
   Http://quickandeasysoftware.net
 ******************************************************
 }
@@ -39,7 +39,7 @@ uses
 type
   TOptions = class (TComponent)
   private
-    fOptionsFilename: string; //Filename to store the ini
+    fOptionsIniPath: string; //Filename to store the ini
     fIniFile: TMemIniFile;
 
     //Internal properties
@@ -81,6 +81,7 @@ type
     function GetCommandLine_RemoveName: boolean;
     function GetCommandLine_RemoveThis: boolean;
     function GetCommandLine_EjectCard: boolean;
+    function GetCommandLine_CfgDir: boolean;
     //function GetCommandLine_CloseApps: boolean;
     //function GetCommandLine_CloseAppsForce: boolean;
     //function GetCommandLine_Param_UseWindowsNotifications: string;
@@ -88,9 +89,11 @@ type
     function GetCommandLine_Param_RemoveLabel: string;
     function GetCommandLine_Param_RemoveMountPoint: string;
     function GetCommandLine_Param_RemoveName: string;
+    function GetCommandLine_Param_CfgDir: string;
     //function GetCommandLine_Param_CloseApps: string;
     //function GetCommandLine_Param_CloseAppsForce: string;
     function FindParamIndex(Param: string): integer;
+    function GetIniPath: string;
 
   public
     constructor Create(aOwner: TComponent); override;
@@ -110,6 +113,7 @@ type
     property CommandLine_RemoveMountPoint:                boolean read GetCommandLine_RemoveMountPoint;
     property CommandLine_RemoveName:                      boolean read GetCommandLine_RemoveName;
     property CommandLine_EjectCard:                       boolean read GetCommandLine_EjectCard;
+    property CommandLine_CFGDir:                          boolean read GetCommandLine_CfgDir;
     //property CommandLine_CloseApps:                     boolean read GetCommandLine_CloseApps;
    // property CommandLine_CloseAppsForce:                boolean read GetCommandLine_CloseAppsForce;
    //property CommandLine_UseWindowsNotifications:        boolean read GetCommandLine_UseWindowsNotifications;
@@ -118,6 +122,8 @@ type
     property CommandLine_Param_RemoveLabel:               string  read GetCommandLine_Param_RemoveLabel;
     property CommandLine_Param_RemoveMountPoint:          string  read GetCommandLine_Param_RemoveMountPoint;
     property CommandLine_Param_RemoveName:                string  read GetCommandLine_Param_RemoveName;
+    property CommandLine_Param_CfgDir:                    string  read GetCommandLine_Param_CfgDir;
+    property IniPath:                                     string  read GetIniPath;
     //property CommandLine_Param_CloseApps:               string  read GetCommandLine_Param_CloseApps;
     //property CommandLine_Param_CloseAppsForce:          string  read GetCommandLine_Param_CloseAppsForce;
     //property CommandLine_Param_UseWindowsNotifications: string  read GetCommandLine_Param_UseWindowsNotifications;  //returns the text switch for use with relaunching the program
@@ -165,7 +171,16 @@ begin
   {if CommandLine_NoSave then
     fOptionsFilename:=''
   else}
-    fOptionsFilename:= ExtractFilePath(ParamStr(0)) + str_Ini_FileName;
+
+  //Default filepath
+  fOptionsIniPath:= ExtractFilePath(ParamStr(0)) + str_Ini_FileName;
+
+  //User specified different path for ini
+  if CommandLine_Param_CfgDir > '' then
+    //In the main dpr we check if this path is valid and warn and exit the program if its not.
+    fOptionsIniPath := IncludeTrailingPathDelimiter(CommandLine_Param_CfgDir) + str_Ini_FileName
+
+
 end;
 
 destructor TOptions.Destroy;
@@ -181,7 +196,7 @@ end;
 procedure TOptions.ReadConfig;
 begin
   try
-    fIniFile:=TMemIniFile.Create(fOptionsFilename);
+    fIniFile:=TMemIniFile.Create(fOptionsIniPath);
 
     fUseWindowsNotifications:=    fIniFile.ReadBool('Preferences', 'ShowWindowsEjectMessage', false);
     //fShowNoEjectMessage:=       fIniFile.ReadBool('Preferences', 'ShowNoEjectMessage', true);
@@ -407,6 +422,14 @@ begin
     result:=false;
 end;
 
+function TOptions.GetCommandLine_CfgDir: boolean;
+begin
+  if FindCmdLineSwitch('CFGDIR', true) then
+    result:=true
+  else
+    result:=false;
+end;
+
 function TOptions.GetCommandLine_NoSave: boolean;
 begin
   if FindCmdLineSwitch('NOSAVE', true) then
@@ -447,6 +470,11 @@ begin
     result:=false;
 end;
 
+function TOptions.GetIniPath: string;
+begin
+  result := ExtractFilePath( fOptionsIniPath );
+end;
+
 {function TOptions.GetCommandLine_UseWindowsNotifications: boolean;
 begin
   if FindCmdLineSwitch('USEWINDOWSNOTIFICATIONS', true) then
@@ -454,6 +482,19 @@ begin
   else
     result:=false
 end;}
+
+function TOptions.GetCommandLine_Param_CfgDir: string;
+var
+  intTemp: integer;
+begin
+  //First find what number param the switch is
+  intTemp:=FindParamIndex('/CFGDIR');
+  if intTemp <> -1 then
+    result:=ParamStr(intTemp + 1)
+  else
+    result:='';
+
+end;
 
 function TOptions.GetCommandLine_Param_RemoveLabel: string;
 var

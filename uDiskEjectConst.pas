@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2015 Bennyboy
+  Copyright (c) 2006 - 2017 Bennyboy
   Http://quickandeasysoftware.net
 ******************************************************
 }
@@ -26,11 +26,12 @@ unit uDiskEjectConst;
 interface
 
 const
-  str_App_Version: string             = '1.3.0.5';
+  str_App_Version: string             = '1.3.0.6';
   str_Ini_FileName: string            = 'USB_Disk_Eject.cfg';
   str_No_Drive: string                = 'No disks found.';
   str_Temp_Folder_Write_Error: string = 'Could not write to windows temp dir!' + #13 + 'The program will now exit';
   str_Minimize: string                = ' The program is still running! Click on the icon to restore the program.';
+  str_IniPathInvalid: string          = 'You used the INIPATH switch but the path given was invalid.' + #13 + 'It either doesnt exist or I cant write to it.';
 
   str_Question: string = '/?'           +  #13 + 'Displays this message.' + #13#13 +
                         '/NOSAVE'       +  #13 + 'Options are not saved, no cfg file will be created. But if theres USB_Disk_Eject.cfg in the path, options will be read from it.' + #13#13 +
