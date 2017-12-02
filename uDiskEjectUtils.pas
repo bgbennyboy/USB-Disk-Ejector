@@ -1,7 +1,7 @@
  {
 ******************************************************
   USB Disk Ejector
-  Copyright (c) 2006 - 2017 Bennyboy
+  Copyright (c) 2006 - 2015 Bennyboy
   Http://quickandeasysoftware.net
 ******************************************************
 }
@@ -27,7 +27,7 @@ interface
 
 uses Classes, sysutils, windows, forms, jclsysinfo, jclfileutils, jclshell,
      JCLRegistry, dialogs, ShellAPI, JwaWindows, JCLStrings,
-     uDiskEjectConst, uDriveEjector, uCardReaderManager, uDiskEjectOptions;
+     uDiskEjectConst, uDriveEjector, uCardReaderManager;
 
 type
   TTaskBarPos = (_TOP, _BOTTOM, _LEFT, _RIGHT, _NONE);
@@ -53,7 +53,6 @@ function IsAppRunningFromThisLocation(MountPoint: string): boolean;
 function GetCaseSensitiveMountPointName(MountPoint: string;  Ejector: TDriveEjector): string;
 function GetIfCardReader_FromName(Name: string; Ejector: TDriveEjector; var CardReaderResult: boolean): boolean;
 function GetIfCardReader_FromMountPoint(MountPoint: string; Ejector: TDriveEjector; var CardReaderResult: boolean): boolean;
-function IsDirectoryWriteable(const AName: string): Boolean;
 
 implementation
 
@@ -99,8 +98,8 @@ var
 begin
   CopyResult := true;
   //Copy the exe and the ini file to the temp folder and start the exe
-  if FileExists( Options.IniPath + str_Ini_FileName ) then
-    CopyResult := FileCopy(Options.IniPath + str_Ini_FileName, IncludeTrailingPathDelimiter(GetWindowsTempFolder) + str_Ini_FileName, true);
+  if FileExists( ExtractFilePath(Application.ExeName) + str_Ini_FileName ) then
+    CopyResult := FileCopy(ExtractFilePath(Application.ExeName) + str_Ini_FileName, IncludeTrailingPathDelimiter(GetWindowsTempFolder) + str_Ini_FileName, true);
 
   if CopyResult = true then
     CopyResult := FileCopy(Application.ExeName, IncludeTrailingPathDelimiter(GetWindowsTempFolder) + extractfilename(application.ExeName), true);
@@ -561,15 +560,5 @@ begin
   end;
 end;
 
-function IsDirectoryWriteable(const AName: string): Boolean;
-var
-  TempFileName: array[0..MAX_PATH] of Char;
-begin
-  { attempt to create a temp file in the directory }
-  Result := GetTempFileName(PChar(AName), '$', 0, TempFileName) <> 0;
-  if Result then
-    { clean up }
-    Result := DeleteFile(TempFileName);
-end;
 
 end.
