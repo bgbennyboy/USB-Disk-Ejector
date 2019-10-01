@@ -11,7 +11,7 @@ Windows XP, Vista, 7, 8, 10  (32 and 64 bit)
 
 **It is simple.** The program is designed to be easy to use and its advanced options are hidden so that they dont get in the way.
 
-**It is portable.** It can be stored and used on a removable device like a pen drive. It can even eject the disk that it is running from. It doesnt require administrator rights and doesnt need installing.
+**It is portable.** It can be stored and used on a removable device like a pen drive. It can even eject the disk that it is running from. It doesn't require administrator rights and doesnt need installing.
 
 **It is flexible.** There are many features that can be customised such as hotkeys, positioning, notifications and post-eject actions.
 
@@ -27,7 +27,7 @@ So you could setup a hotkey, desktop shortcut or bat file to eject a drive. Or i
 
 **It can eject disks when Vista cant.** On Windows Vista, disks often cant be ejected because they have an open explorer window. Other versions of Windows will close any explorer windows belonging to a disk but Vista often doesnt – so USB Disk Ejector closes it before ejecting.
 
-**It can eject disks when Windows sometimes cant.** If any applications are running from a disk then Windows wont be able to eject it. USB Disk Ejector can detect and auto-close any applications running from the disk before ejecting. Please note this closes applications that were launched from the disk not applications that have opened a file on the disk. See the limitations section in the readme for more information.
+**It can eject disks when Windows sometimes cant.** If any applications are running from a disk then Windows won't be able to eject it. USB Disk Ejector can detect and auto-close any applications running from the disk before ejecting. Please note this closes applications that were launched from the disk not applications that have opened a file on the disk. See the limitations section in the `readme` for more information.
 
 **It is small.** Less than 1.5MB (when UPX compressed)
 
@@ -52,23 +52,23 @@ For ejecting card media - such as flash memory cards any internal or external ca
 
 *   Drives mounted in a folder [like this](http://lifehacker.com/373389/mount-usb-drives-in-assigned-folders-to-keep-them-straight) are also supported.
 
-*   If your card reader is shown as a drive not a card reader then you can change this. In options go to the Card Readers tab. There you can define a particular drive as a card reader, it will then be treated and shown as a card reader.
+*   If your card reader is shown as a drive not a card reader then you can change this. In Options go to the Card Readers tab. There you can define a particular drive as a card reader, it will then be treated and shown as a card reader.
 
 *   The program has a system tray icon - you can right click this to eject disks. This is similar to the behaviour of the Windows "Safely Remove Hardware" tray icon.
 
-*   Settings are saved in a file called USB_Disk_Eject.cfg - but this wont be created unless you change a setting in the options. It will always be saved into the same place as the program itself.
+*   Settings are saved in a file called `USB_Disk_Eject.cfg` - but this won't be created unless you change a setting in the options. It will always be saved into the same place as the program itself.
 
-*   If you have a disk that has multiple drives (eg a hard drive with multiple partitions) then this can be set to only show one entry in the program. To enable this tick "show drives with partitions as one entry" in the options. If you enable this option then hovering your mouse over the disk will being up a tooltip showing what disks 'belong' to that entry.
+*   If you have a disk that has multiple drives (eg a hard drive with multiple partitions) then this can be set to only show one entry in the program. To enable this, tick "show drives with partitions as one entry" in the options. If you enable this option then hovering your mouse over the disk will being up a tooltip showing what disks 'belong' to that entry.
 
 *   There are many more features - click on "More" and go to "Options" to see the full list.
 
 # Command Line
 
-When using the program on the command line, settings that have been created when using the program normally may still be used. If USB_Disk_Eject.cfg is found in the same folder as the program then it will read and use settings from it. Settings such as removal notifications will be dictated by what has been set in options if this file is present.
+When using the program on the command line, settings that have been created when using the program normally may still be used. If `USB_Disk_Eject.cfg` is found in the same folder as the program then it will read and use settings from it. Settings such as removal notifications will be dictated by what has been set in options if this file is present.
 
 This is particularly important when dealing with memory cards and card readers. For example if a device has been defined as a card reader in options then when ejecting the program will honor this and eject the card media not the card reader device.
 
-If you dont want the program to inherit options then make sure that USB_Disk_Eject.cfg is not present in the same folder.
+If you dont want the program to inherit options then make sure that `USB_Disk_Eject.cfg` is not present in the same folder.
 
 The following command line options are available:
 
@@ -76,9 +76,9 @@ The following command line options are available:
     Displays a dialog that shows all command line options.
 
 *   /NOSAVE  
-    Settings are not saved, no cfg file will be created. But if theres USB_Disk_Eject.cfg in the same place as the program, options will be read from it. Use this if you want to launch the program but stop it saving settings or overwriting existing settings.
+    Settings are not saved, no cfg file will be created. But if theres `USB_Disk_Eject.cfg` in the same place as the program, options will be read from it. Use this if you want to launch the program but stop it saving settings or overwriting existing settings.
 
-*	/CFGDIR 
+*   /CFGDIR 
 	Specify a different path for the cfg file (the file where settings are stored). EG /CFGDIR "c:\users\ben\desktop\stuff"
 
 *   /REMOVETHIS  
@@ -113,9 +113,9 @@ If you are upgrading from a version before 1.3 then be aware that some command l
 *   /CLOSEAPPS
 *   /CLOSEAPPSFORCE
 
-These settings are now set in the options menu. If you are using the program from the command line and USB_Disk_Eject.cfg is found in the same folder as the program then it will read and use settings from it. If its not found then the default settings will be used.
+These settings are now set in the options menu. If you are using the program from the command line and `USB_Disk_Eject.cfg` is found in the same folder as the program then it will read and use settings from it. If its not found then the default settings will be used.
 
-Using these switches with this new version of the program wont cause any problems - they will just be ignored.
+Using these switches with this new version of the program won't cause any problems - they will just be ignored.
 
 # Limitations/Bugs
 
@@ -126,7 +126,7 @@ Please [contact me](http://quickandeasysoftware.net/contact) or create an issue 
 *   A disk eject can fail when there is still an application or process accessing the drive.  
     If the application that is accessing the drive is running from the drive that you're trying to eject then USB Disk Ejector can detect this and close it (see the options menu to enable this). Eg if you launch Portable Firefox from a USB flash drive and then try and eject that flash drive then USB Disk Ejector will close Portable Firefox and then successfully eject the drive.  
 
-    If the program accessing the disk is one installed on your computer (eg if Microsoft Word has opened a document on a flash drive that you are trying to eject) - then USB Disk Ejector wont be able to detect this and wont be able to close it. Doing this reliably requires administrator rights and a kernel driver - something beyond the scope of this program.  
+    If the program accessing the disk is one installed on your computer (eg if Microsoft Word has opened a document on a flash drive that you are trying to eject) - then USB Disk Ejector won't be able to detect this and won't be able to close it. Doing this reliably requires administrator rights and a kernel driver - something beyond the scope of this program.  
     You may be able to use [Process Explorer](http://www.microsoft.com/technet/sysinternals/utilities/ProcessExplorer.mspx) or [Unlocker](http://www.emptyloop.com/unlocker/) to find and stop whatever program or process is accessing a drive.
 
 # Acknowledgements And Thanks
